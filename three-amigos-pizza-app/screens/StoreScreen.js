@@ -1,6 +1,6 @@
 import React from 'react';
-import Constants from 'expo-constants';
 import {
+    ActivityIndicator,
     Dimensions,
     Image,
     ScrollView,
@@ -15,6 +15,7 @@ export class StoreScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            isLoading: true,
             storeSelected: false,
             allStores: [],
         };
@@ -30,10 +31,10 @@ export class StoreScreen extends React.Component {
                 }, function(){
 
                 });
-                })
-                .catch((error) =>{
-                    console.error(error);
-                });
+        })  
+        .catch((error) =>{
+            console.error(error);
+        });
     }
 
     goToMenuScreen = (store) => {
@@ -57,7 +58,7 @@ export class StoreScreen extends React.Component {
             );
         });
 
-        return (
+        return !this.state.isLoading ? (
             <View style={styles.container}>
                 <ScrollView
                     style={styles.scrollView}
@@ -85,7 +86,7 @@ export class StoreScreen extends React.Component {
 
                 </ScrollView>
             </View>
-        ) 
+        ) : <View><ActivityIndicator /></View>;
     }
 }
 
@@ -100,7 +101,8 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         height: Dimensions.get('window').height,
-        marginTop: 10
+        marginTop: 10,
+        padding: 10
     },
     content: {
         flexGrow: 1,
