@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import ModalDropdown from 'react-native-modal-dropdown';
 import { MenuItem } from '../components/MenuItem';
+import { CheckBoxes } from '../components/CheckBoxes';
 
 
 export class MenuScreen extends React.Component {
@@ -21,16 +22,21 @@ export class MenuScreen extends React.Component {
 			crustType: "",
 			allCrusts: [],
 			isLoading: true,
-			allSizes: []
+			allSizes: [],
+			allToppings: [],
+			checkBoxObj: {}
       	};
 	}
 	
-	componentWillMount = () => {
+	componentDidMount = async () => {
 
 		// this.createOrder(this.currentStore._id);
-		this.getAllCrusts();
-		this.getAllSizes();
+		await this.getAllCrusts();
+		await this.getAllSizes();
+		await this.getAllToppings();
 		this.setState({isLoading: false});
+		this.createCheckBoxObj();
+		console.log("hi" + JSON.stringify(this.state.checkBoxObj));
 	}
 
 	// createOrder = () => {
@@ -55,7 +61,7 @@ export class MenuScreen extends React.Component {
 				this.setState({
 					allSizes: responseJson,
 				}, function(){
-					console.log(this.state.allSizes);
+					// console.log(this.state.allSizes);
 				});
 		})
 		.catch((error) =>{
@@ -69,6 +75,20 @@ export class MenuScreen extends React.Component {
 			.then((responseJson) => {
 				this.setState({
 					allCrusts: responseJson
+				}, function(){
+				});
+		})
+		.catch((error) =>{
+			console.error(error);
+		});
+	}
+
+	getAllToppings = () => {
+		return fetch('https://quiet-tor-41409.herokuapp.com/pizza/topping')
+			.then((response) => response.json())
+			.then((responseJson) => {
+				this.setState({
+					allToppings: responseJson
 				}, function(){
 				});
 		})
@@ -93,8 +113,15 @@ export class MenuScreen extends React.Component {
 		this.setState({crustType: value});
 	}
 
+	createCheckBoxObj = () => {
+		console.log("yo" + this.state.allToppings);
+		this.state.allToppings.map((item, i) => {
+			this.state.checkBoxObj[item.name] = false;
+		});
+	}
+
     render() {
-		const { currentStore, allSizes, allCrusts, isLoading } = this.state;
+		const { currentStore, allSizes, allCrusts, isLoading, checkBoxObj } = this.state;
 		const renderSpecials = currentStore.menu.specials.map((item, i) => {
             return (
 				<View key={item._id} style={styles.special}>
@@ -157,6 +184,7 @@ export class MenuScreen extends React.Component {
 				</View>
 				<View style={styles.customPizzaContainer}>
 					<Text style={styles.subHeader}>Build Your Own Pizza</Text>
+					<CheckBoxes toppings={checkBoxObj}/>
 				</View>
 			</ScrollView>
 		</View>
