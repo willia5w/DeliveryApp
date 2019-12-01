@@ -1,6 +1,6 @@
 import React from 'react';
-import Constants from 'expo-constants';
 import {
+    ActivityIndicator,
     Dimensions,
     Image,
     ScrollView,
@@ -15,8 +15,9 @@ export class StoreScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            storeSelected: false,
             allStores: [],
+            isLoading: true,
+            storeSelected: false
         };
     }
 
@@ -30,18 +31,18 @@ export class StoreScreen extends React.Component {
                 }, function(){
 
                 });
-                })
-                .catch((error) =>{
-                    console.error(error);
-                });
-    }
-
-    goToMenuScreen = (store) => {
-        this.props.navigation.navigate('Menu', {store: store});
+        })  
+        .catch((error) =>{
+            console.error(error);
+        });
     }
 
     componentWillMount = () => {
         this.getStores();
+    }
+
+    goToMenuScreen = (store) => {
+        this.props.navigation.navigate('Menu', {store: store});
     }
 
     render() {
@@ -57,7 +58,7 @@ export class StoreScreen extends React.Component {
             );
         });
 
-        return (
+        return !this.state.isLoading ? (
             <View style={styles.container}>
                 <ScrollView
                     style={styles.scrollView}
@@ -85,11 +86,14 @@ export class StoreScreen extends React.Component {
 
                 </ScrollView>
             </View>
-        ) 
+        ) : <View style={styles.activityIndicator}><ActivityIndicator /></View>;
     }
 }
 
 const styles = StyleSheet.create({
+    activityIndicator: {
+		marginTop: 50
+	},
     addressHeader: {
         justifyContent: 'center',
         width: 120
@@ -100,7 +104,8 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         height: Dimensions.get('window').height,
-        marginTop: 10
+        marginTop: 10,
+        padding: 10
     },
     content: {
         flexGrow: 1,
