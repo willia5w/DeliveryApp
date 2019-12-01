@@ -1,10 +1,11 @@
 import React from 'react';
 import {
 	Button,
+	StyleSheet,
 	Text,
-	View,
-	StyleSheet, 
+	View
 } from 'react-native';
+
 import ModalDropdown from 'react-native-modal-dropdown';
 
 export class MenuItem extends React.Component {
@@ -13,25 +14,17 @@ export class MenuItem extends React.Component {
         this.state = {
 		  isLoading: true,
 		  size: ""
-        }; 
+        };
 	}
-	
-    // addPizza = () => {
-    //   fetch('https://radiant-springs-17894.herokuapp.com/pizza/crust/', {
-    //     method: 'POST',
-    //     headers: {
-    //       Accept: 'application/json',
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       glutenFree: false,
-    //       name: 'thick',
-    //       price: 7
-    //     }),
-    //   });
-    //   this.getCrusts();
-    // }
-	
+
+	addPizza = () => {
+		this.props.addMenuPizzaToOrder(this.props.id, this.state.size._id);
+	}
+
+	onSelect = (index, value) => {
+		this.setState({size: value});
+	}
+
 	renderRow = (rowData) => {
 		return (
 			<View>
@@ -39,17 +32,14 @@ export class MenuItem extends React.Component {
 			</View>
 		)
 	}
+
 	renderButtonText = (rowData) => {
 		const { name } = rowData;
 		return `${name}`;
 	}
 
-	onSelect = (index, value) => {
-		this.setState({size: value});
-	}
-
     render() {
-		const { name, toppings, price, sizes } = this.props;
+		const { name, price, sizes, toppings } = this.props;
 		const renderToppings = toppings.map((item, i) => {
 			return (
 				<View key={item._id} style={styles.topping}>
@@ -77,18 +67,16 @@ export class MenuItem extends React.Component {
 						renderRow={this.renderRow}
 						renderButtonText={(rowData) => this.renderButtonText(rowData)}
 						onSelect={this.onSelect}
-						defaultValue={'Size'}
+						defaultValue={'Select Size'}
 					/>
 				</View>
 				<View style={styles.button}>
 					<Button 
 						style={styles.button} 
 						title="Add"
-						onPress={() => navigate()}
-					/>  
+						onPress={() => this.addPizza()}
+					/>
 				</View>
-
-				
             </View>
        )
     }
@@ -99,26 +87,26 @@ const styles = StyleSheet.create({
 		width: 50,
 		justifyContent: 'center'
 	},
+	columns: {
+		width: 90,
+		justifyContent: 'center',
+		alignItems: 'flex-start'
+	},
     container: {
 		flex: 1,
 		backgroundColor: '#fff',
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		textAlign: 'center'
-    },
-	toppingsColumn: {
-		width: 90,
-		marginVertical: 10,
-		justifyContent: 'center',
-		alignItems: 'flex-start'
-	},
-	columns: {
-		width: 90,
-		justifyContent: 'center',
-		alignItems: 'flex-start'
 	},
 	thinColumns: {
 		width: 50,
+		justifyContent: 'center',
+		alignItems: 'flex-start'
+	},
+	toppingsColumn: {
+		width: 90,
+		marginVertical: 10,
 		justifyContent: 'center',
 		alignItems: 'flex-start'
 	}

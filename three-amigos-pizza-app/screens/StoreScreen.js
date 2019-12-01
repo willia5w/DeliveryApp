@@ -15,9 +15,9 @@ export class StoreScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isLoading: true,
-            storeSelected: false,
             allStores: [],
+            isLoading: true,
+            storeSelected: false
         };
     }
 
@@ -37,12 +37,12 @@ export class StoreScreen extends React.Component {
         });
     }
 
-    goToMenuScreen = (store) => {
-        this.props.navigation.navigate('Menu', {store: store});
-    }
-
     componentWillMount = () => {
         this.getStores();
+    }
+
+    goToMenuScreen = (store) => {
+        this.props.navigation.navigate('Menu', {store: store});
     }
 
     render() {
@@ -86,11 +86,14 @@ export class StoreScreen extends React.Component {
 
                 </ScrollView>
             </View>
-        ) : <View><ActivityIndicator /></View>;
+        ) : <View style={styles.activityIndicator}><ActivityIndicator /></View>;
     }
 }
 
 const styles = StyleSheet.create({
+    activityIndicator: {
+		marginTop: 50
+	},
     addressHeader: {
         justifyContent: 'center',
         width: 120
