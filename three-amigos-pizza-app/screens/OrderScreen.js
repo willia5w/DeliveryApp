@@ -72,9 +72,9 @@ export class OrderScreen extends React.Component {
         }
     }
 
-    // proceedToCheckout = () => {
-    //     this.props.navigation.navigate('Checkout', {storeId: this.state.orderId.storeId, orderId: this.state.orderId});
-    // }
+    proceedToCheckout = () => {
+        this.props.navigation.navigate('Checkout', {storeId: this.state.orderId.storeId, orderId: this.state.orderId});
+    }
  
     render() {
         const renderItems = this.state.pizzas.map((item, i) => {
