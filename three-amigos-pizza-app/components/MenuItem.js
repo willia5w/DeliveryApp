@@ -13,12 +13,17 @@ export class MenuItem extends React.Component {
         super(props); 
         this.state = {
 		  isLoading: true,
-		  size: ""
+		  size: null,
+		  sizeNotSelected: false
         };
 	}
 
 	addPizza = () => {
-		this.props.addMenuPizzaToOrder(this.props.id, this.state.size._id);
+		if (!this.state.size) {
+			this.setState({sizeNotSelected: true});
+		} else {
+			this.props.addMenuPizzaToOrder(this.props.id, this.state.size._id);
+		}
 	}
 
 	onSelect = (index, value) => {
@@ -39,6 +44,10 @@ export class MenuItem extends React.Component {
 	}
 
     render() {
+		const errorMessage = (
+			<Text style={styles.error}>Please select a size for your pizza.</Text>
+		)
+
 		const { name, price, sizes, toppings } = this.props;
 		const renderToppings = toppings.map((item, i) => {
 			return (
@@ -51,33 +60,36 @@ export class MenuItem extends React.Component {
 		});
 
         return (
-            <View style={styles.container}>
-				<View style={styles.columns}>
-					<Text>{name}</Text>
+			<View>
+				{this.state.sizeNotSelected ? errorMessage : null}
+				<View style={styles.container}>
+					<View style={styles.columns}>
+						<Text>{name}</Text>
+					</View>
+					<View style={styles.toppingsColumn}>
+						{renderToppings}
+					</View>
+					<View style={styles.thinColumns}>
+						<Text>${price.toFixed(2)}</Text>
+					</View>
+					<View style={styles.thinColumns}>
+						<ModalDropdown
+							options={sizes}
+							renderRow={this.renderRow}
+							renderButtonText={(rowData) => this.renderButtonText(rowData)}
+							onSelect={this.onSelect}
+							defaultValue={'Select Size'}
+						/>
+					</View>
+					<View style={styles.button}>
+						<Button 
+							style={styles.button} 
+							title="Add"
+							onPress={() => this.addPizza()}
+						/>
+					</View>
 				</View>
-				<View style={styles.toppingsColumn}>
-					{renderToppings}
-				</View>
-				<View style={styles.thinColumns}>
-					<Text>${price.toFixed(2)}</Text>
-				</View>
-				<View style={styles.thinColumns}>
-					<ModalDropdown
-						options={sizes}
-						renderRow={this.renderRow}
-						renderButtonText={(rowData) => this.renderButtonText(rowData)}
-						onSelect={this.onSelect}
-						defaultValue={'Select Size'}
-					/>
-				</View>
-				<View style={styles.button}>
-					<Button 
-						style={styles.button} 
-						title="Add"
-						onPress={() => this.addPizza()}
-					/>
-				</View>
-            </View>
+			</View>
        )
     }
 }
@@ -98,6 +110,9 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		textAlign: 'center'
+	},
+	error: {
+		color: 'red'
 	},
 	thinColumns: {
 		width: 50,

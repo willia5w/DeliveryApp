@@ -184,6 +184,10 @@ export class MenuScreen extends React.Component {
 		return `${name}`;
 	}
 
+	viewOrder = () => {
+		this.props.navigation.navigate('Order', {orderId: this.state.orderId});
+	}
+
     render() {
 		const { allCrusts, allSizes, allToppings, currentStore, isLoading } = this.state;
 		
@@ -288,6 +292,7 @@ export class MenuScreen extends React.Component {
 							/>
 							<Button
 								title="View Order"
+								onPress={this.viewOrder}
 							/>
 						</View>
 					</View>
