@@ -7,13 +7,14 @@ import {
     TextInput,
     View
 } from 'react-native';
+import Customer from '../components/Customer';
 
 
 export class CheckoutScreen extends React.Component {
     state = {
         isLoading: true,
-        orderId: '5de4a45c7c9cbb0004b25da8',
-        storeId: '5de4889f7c9cbb0004b25450',
+        orderId: this.props.navigation.getParam('orderId'),
+        storeId: this.props.navigation.getParam('storeId'),
         order: null,
         // customerInfo: {
         name: null,
@@ -91,7 +92,6 @@ export class CheckoutScreen extends React.Component {
                 console.log('\n1. customer object created: ' + JSON.stringify(responseJson))
                 console.log(`\n   customerId recorded: ${this.state.customerId}`)
                 this.addCustomerToOrder();
-                // return
             });
         })
         .catch((error) => {
