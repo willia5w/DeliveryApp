@@ -4,6 +4,7 @@ import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { MenuScreen } from '../screens/MenuScreen';
 import { OrderScreen } from '../screens/OrderScreen';
 import { StoreScreen } from '../screens/StoreScreen';
+import { CheckoutScreen } from '../screens/CheckoutScreen';
 
 
 export default createAppContainer(
@@ -12,6 +13,7 @@ export default createAppContainer(
     // Read more at https://reactnavigation.org/docs/en/auth-flow.html
     Store: StoreScreen,
     Menu: MenuScreen,
-    Order: OrderScreen
+    Order: OrderScreen,
+    Checkout: CheckoutScreen
   })
 );
