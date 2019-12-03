@@ -19,6 +19,7 @@ export class OrderScreen extends React.Component {
             isLoading: true,
             order: {},
             orderId: this.props.navigation.getParam('orderId'),
+            storeId: this.props.navigation.getParam('storeId'),
             pizzas: []
         };
     }

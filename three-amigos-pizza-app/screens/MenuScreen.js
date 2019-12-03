@@ -31,7 +31,8 @@ export class MenuScreen extends React.Component {
 			menuPizzaId: "",
 			menuPizzaSizeId: "",
 			order: {},
-			orderId: ""
+			orderId: "",
+			currentStoreId: ""
       	};
 	}
 	
@@ -101,9 +102,10 @@ export class MenuScreen extends React.Component {
 		}).then((response) => response.json())
 			.then((responseJson) => {
 				this.setState({
-					orderId: responseJson._id
+					orderId: responseJson._id,
+					currentStoreId: storeId
 				}, function() {
-					console.log(this.state.orderId);
+					
 				})
 			})
 			.catch((error) => {
@@ -185,7 +187,7 @@ export class MenuScreen extends React.Component {
 	}
 
 	viewOrder = () => {
-		this.props.navigation.navigate('Order', {orderId: this.state.orderId});
+		this.props.navigation.navigate('Order', {orderId: this.state.orderId, storeId: this.state.currentStoreId});
 	}
 
     render() {
