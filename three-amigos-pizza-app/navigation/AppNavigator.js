@@ -14,6 +14,6 @@ export default createAppContainer(
     Store: StoreScreen,
     Menu: MenuScreen,
     Order: OrderScreen,
-    Checkout: CheckoutScreen
+    Checkout: CheckoutScreen,
   })
 );

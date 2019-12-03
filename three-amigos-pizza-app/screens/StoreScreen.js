@@ -22,7 +22,7 @@ export class StoreScreen extends React.Component {
     }
 
     getStores = () => {
-        return fetch('https://radiant-springs-17894.herokuapp.com/store')
+        return fetch('https://three-amigos-prod.herokuapp.com/store')
             .then((response) => response.json())
             .then((responseJson) => {
                 this.setState({

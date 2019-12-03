@@ -3,66 +3,59 @@ import {
     Button,
     StyleSheet,
     ScrollView,
-    Text,
-    TextInput,
-    View
+    Text
 } from 'react-native';
-import Customer from '../components/Customer';
+import { Form, TextValidator } from 'react-native-validator-form';
 
 
 export class CheckoutScreen extends React.Component {
     state = {
-        isLoading: true,
+        // props
         orderId: this.props.navigation.getParam('orderId'),
         storeId: this.props.navigation.getParam('storeId'),
-        order: null,
-        // customerInfo: {
-        name: null,
-        phone: null,
-        address: null,
-        creditCardNumber: null,
-        cvv: null,
-        expirationMonth: null,
-        expirationYear: null,
-        //
-        customerId: null,
-        customerObject: null,
-        errorMessage: null
+        // time for validation
+        timeProcessed: new Date(),
+        // input info from form
+        name: '',
+        phone: '',
+        address: '',
+        creditCardNumber: '',
+        cvv: '',
+        expirationMonth: '',
+        expirationYear: '',
+        // id of customer in db
+        customerId: '',
+        cardExpired: false
     }
 
-    getOrderHandler = () => {
-        fetch('https://three-amigos-prod.herokuapp.com/order/' + this.state.orderId)  // this.props.navigation.getParam('orderId')
-        .then(response => response.json())
-        .then(responseJson => {
-            this.setState({
-                order:responseJson,
-                isLoading: false
-            })
-        })
+    // Only gets called if all validations are passed
+    handleSubmit = () => {
+        this.submitOrder();
     }
 
-    submitOrderHandler = () => {
-        const errorMessage = this.getErrorMessage();
-        if (errorMessage != null) {
-            this.setState({
-                errorMessage: `Please enter a valid ${errorMessage}`
-            })
-        } else {
+    submitOrder = () => {
+        if (this.validatePayment()) {
             this.postCustomer();
+        } else {
+            this.setState({ cardExpired: true })
+            return
         }
     }
 
-    getErrorMessage = () => {
-        if (!this.state.name) {return 'name'}
-        if (!this.state.phone) {return 'phone'}
-        if (!this.state.address) {return 'address'}
-        if (!this.state.creditCardNumber) {return 'credit card number'}
-        if (!this.state.cvv) {return 'cvv'}
-        if (!this.state.expirationMonth) {return 'expiration month'}
-        if (!this.state.expirationYear) {return 'expiration year'}
-        return null;
+    // extra validation for expiration
+    validatePayment = () => {
+        const { timeProcessed, expirationYear, expirationMonth } = this.state;
+        if (timeProcessed.getFullYear() > expirationYear) {
+            return false;
+        } else if (timeProcessed.getFullYear() == expirationYear) {
+            if (timeProcessed.getMonth() >= expirationMonth) {
+                return false
+            }
+        }
+        return true
     }
 
+    // 1. post customer to db
     postCustomer = () => {
         fetch('https://three-amigos-prod.herokuapp.com/customer/', {
             method: 'POST',
@@ -71,119 +64,141 @@ export class CheckoutScreen extends React.Component {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                _id: "5de481a87c9cbb0004b24fd7",
                 name: this.state.name,
                 phone: this.state.phone,
                 address: this.state.address,
                 creditCard: {
-                  cardNumber: this.state.creditCardNumber,
-                  expirationMonth: this.state.expirationMonth,
-                  expirationYear: this.state.expirationYear,
-                  cvv: this.state.cvv
+                    cardNumber: this.state.creditCardNumber,
+                    expirationMonth: this.state.expirationMonth,
+                    expirationYear: this.state.expirationYear,
+                    cvv: this.state.cvv
                 }
             })
         }).then((response) => response.json())
-        .then((responseJson) => {
-            this.setState({
-                customerObject: responseJson,
-                customerId: responseJson._id,
-                isLoading: true
-            }, function() {
-                console.log('\n1. customer object created: ' + JSON.stringify(responseJson))
-                console.log(`\n   customerId recorded: ${this.state.customerId}`)
-                this.addCustomerToOrder();
+            .then((responseJson) => {
+                this.addCustomerToOrder(responseJson._id);
+            })
+            .catch((error) => {
+                console.error(error);
             });
-        })
-        .catch((error) => {
-            console.error(error);
-        });
     }
 
-    addCustomerToOrder = () => {
-        fetch(`https://three-amigos-prod.herokuapp.com/order/${this.state.orderId}/customer?customerId=${this.state.customerId}`, {
+    // 2. add customer to the order
+    addCustomerToOrder = (customerId) => {
+        fetch(`https://three-amigos-prod.herokuapp.com/order/${this.state.orderId}/customer?customerId=${customerId}`, {
             method: 'PUT',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json'
             }
         })
-        .then((response) => response.json())
-        .then(responseJson => {
-            this.setState({
+            .then((response) => {
+                return response.json()
+            })
+            .then(responseJson => {
+                this.setState({
 
-            }, function() {
-                console.log('\n2. add customer to order response: ' + JSON.stringify(responseJson))
-                this.processOrder();
+                }, function () {
+                    this.processOrder(responseJson);
+                });
+            })
+            .catch((error) => {
+                console.error(error);
             });
-        })
-        .catch((error) => {
-            console.error(error);
-        });
     }
 
-    processOrder = () => {
-
+    // 3. pass the order details to receipt page
+    processOrder = (orderDetails) => {
+        this.props.navigation.navigate('Receipt', { order: orderDetails });
     }
 
     render() {
-        const {errorMessage} = this.state;
+        const {
+            name, phone, address,
+            creditCardNumber, cvv, expirationMonth, expirationYear,
+            cardExpired
+        } = this.state;
+
         return (
             <ScrollView>
                 <Text style={styles.title}>Checkout</Text>
-                
-                <Text>{errorMessage}</Text>
-                
-                <View style={styles.inputContainer}>
-                    <TextInput
+                <Form
+                    ref="form"
+                    onSubmit={this.handleSubmit} // Only fires when all validations are passed
+                >
+                    <Text style={styles.header}>Contact Info</Text>
+                    <TextValidator
+                        name="name"
                         style={styles.textInput}
-                        placeholder="Name"
-                        onChangeText={(text) => this.setState({errorMessage: null, name: text})}
-						value={this.state.name}
+                        validators={['required', 'isString']}
+                        errorMessages={['Name is required', 'Name invalid']}
+                        placeholder="Your name..."
+                        value={name}
+                        onChangeText={(text) => this.setState({ name: text })}
                     />
-                    <TextInput
+                    <TextValidator
+                        name="phone"
                         style={styles.textInput}
-                        placeholder="Phone"
-                        onChangeText={(text) => this.setState({errorMessage: null, phone: text})}
-                        value={this.state.phone}
-                        maxLength={10}
+                        validators={['required', 'isNumber', 'matchRegexp:^[0-9]{9,11}$']}
+                        errorMessages={['Phone number is required', 'Phone invalid', 'inv']}
+                        placeholder="Your phone..."
+                        value={phone}
+                        onChangeText={(text) => this.setState({ phone: text })}
                     />
-                    <TextInput
+                    <TextValidator
+                        name="address"
                         style={styles.textInput}
-                        placeholder="Address"
-                        onChangeText={(text) => this.setState({errorMessage: null, address: text})}
-						value={this.state.address}
+                        validators={['required', 'isString']}
+                        errorMessages={['Address is required', 'Address invalid']}
+                        placeholder="Your address..."
+                        value={address}
+                        onChangeText={(text) => this.setState({ address: text })}
                     />
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder="Credit Card Number"
-                        onChangeText={(text) => this.setState({errorMessage: null, creditCardNumber: text})}
-                        value={this.state.creditCardNumber}
-                        maxLength={16}
-                    />
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder="CVV"
-                        onChangeText={(text) => this.setState({errorMessage: null, cvv: text})}
-                        value={this.state.cvv}
-                        maxLength={3}
-                    />
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder="Expiration Month"
-                        onChangeText={(text) => this.setState({errorMessage: null, expirationMonth: text})}
-						value={this.state.expirationMonth}
-                    />
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder="Expiration Year"
-                        onChangeText={(text) => this.setState({errorMessage: null, expirationYear: text})}
-						value={this.state.expirationYear}
-                    />
-                </View>
 
-                <View>
-                    <Button type="outline" title="Submit Order" onPress={this.submitOrderHandler}/>
-                </View>
+                    <Text style={styles.header}>Payment Details</Text>
+
+                    <TextValidator
+                        name="creditCardNumber"
+                        style={styles.textInput}
+                        validators={['required', 'matchRegexp:^[0-9]{16}$']}
+                        errorMessages={['Credit Card Number is required', 'Credit Card Number invalid']}
+                        placeholder="Your 16 digit credit card number..."
+                        value={creditCardNumber}
+                        onChangeText={(text) => this.setState({ creditCardNumber: text })}
+                    />
+                    <TextValidator
+                        name="cvv"
+                        style={styles.textInput}
+                        validators={['required', 'matchRegexp:^[0-9]{3}$']}
+                        errorMessages={['CVV number is required', 'CVV number invalid']}
+                        placeholder="Your 3 digit credit card cvv..."
+                        value={cvv}
+                        onChangeText={(text) => this.setState({ cvv: text })}
+                    />
+                    <TextValidator
+                        name="expirationMonth"
+                        style={styles.textInput}
+                        validators={['required', 'isNumber', 'minNumber:1', 'maxNumber:12']}
+                        errorMessages={['Expiration Month is required', 'Month invalid', 'Month invalid', 'Month invalid']}
+                        placeholder="Your credit card expiration month..."
+                        value={expirationMonth}
+                        onChangeText={(text) => this.setState({ expirationMonth: text, cardExpired: false })}
+                    />
+                    <TextValidator
+                        name="expirationYear"
+                        style={styles.textInput}
+                        validators={['required', 'isNumber', 'minNumber:2019']}
+                        errorMessages={['Expiration Year is required', 'Year invalid', 'Year invalid']}
+                        placeholder="Your credit card expiration year..."
+                        value={expirationYear}
+                        onChangeText={(text) => this.setState({ expirationYear: text, cardExpired: false })}
+                    />
+                    {cardExpired ? <Text>Credit card is expired :/</Text> : null}
+                    <Button
+                        title="Submit"
+                        onPress={this.handleSubmit}
+                    />
+                </Form>
             </ScrollView>
         )
     }
@@ -197,43 +212,27 @@ const styles = StyleSheet.create({
     },
     header: {
         fontSize: 25,
-        textAlign: 'center',
+        textAlign: 'left',
         margin: 10,
         fontWeight: 'bold'
     },
     inputContainer: {
         paddingTop: 15
     },
+    subtitle: {
+        fontSize: 30
+    },
     textInput: {
         borderColor: '#CCCCCC',
         borderTopWidth: 1,
         borderBottomWidth: 1,
         height: 50,
-        fontSize: 25,
+        fontSize: 15,
         paddingLeft: 20,
         paddingRight: 20
     },
     title: {
         fontSize: 50,
         textAlign: 'center'
-	}
+    }
 });
-
-
-    // checkoutOrder = () => {
-    //     // fetch(`https://quiet-tor-41409.herokuapp.com/store/${this.state.storeId}/customer?customerId=${this.state.orderId}`, {
-    //     fetch(('https://three-amigos-prod.herokuapp.com/store/' + this.state.storeId + '/customer?customerId=' + this.state.orderId), {
-    //         method: 'PUT',
-    //         headers: {
-    //             Accept: 'application/json',
-    //             'Content-Type': 'application/json'
-    //         }
-    //     })
-    //     .then((response) => response.json())
-    //     .then(responseJson => {
-    //         console.log('\n3. checkout order response: ' + JSON.stringify(responseJson))
-    //     })
-    //     .catch((error) => {
-    //         console.error(error);
-    //     });
-    // }
