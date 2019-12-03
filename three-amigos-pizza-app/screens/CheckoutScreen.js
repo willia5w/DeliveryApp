@@ -1,6 +1,7 @@
 import React from 'react';
 import {
     Button,
+    Image,
     StyleSheet,
     ScrollView,
     Text
@@ -110,9 +111,11 @@ export class CheckoutScreen extends React.Component {
     // 3. pass the order details to receipt page
     processOrder = (orderDetails) => {
         console.log(JSON.stringify(orderDetails))
-        this.props.navigation.navigate('Receipt', { order: orderDetails, 
-                                                    storeId: orderDetails.storeId,
-                                                orderId: orderDetails._id});
+        this.props.navigation.navigate('Receipt', {
+            order: orderDetails,
+            storeId: orderDetails.storeId,
+            orderId: orderDetails._id
+        });
     }
 
     render() {
@@ -218,6 +221,11 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         margin: 10,
         fontWeight: 'bold'
+    },
+    icon: {
+        marginVertical: 10,
+        height: 50,
+        width: 50
     },
     inputContainer: {
         paddingTop: 15

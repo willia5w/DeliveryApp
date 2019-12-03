@@ -67,7 +67,7 @@ export class StoreScreen extends React.Component {
                     <View style={styles.imageContainer}>
                         <Image 
                             style={styles.image}
-                            source={require('../assets/images/pizza-1428931_1280.png')}
+                            source={require('../assets/images/pizza-icon.png')}
                         />
                     </View>
                     <Text style={styles.select}>Select a Store</Text>
