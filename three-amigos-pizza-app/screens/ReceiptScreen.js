@@ -31,7 +31,7 @@ export class ReceiptScreen extends React.Component {
 
 	completeOrder = () => {
 		this.setState({isLoading: true});
-		fetch(`https://quiet-tor-41409.herokuapp.com/store/${this.state.storeId}/complete?OrderId=${this.state.orderId}`, {
+		fetch(`https://three-amigos-prod.herokuapp.com/store/${this.state.storeId}/complete?OrderId=${this.state.orderId}`, {
 			method: 'PUT',
 			headers: {
 				Accept: 'application/json',
@@ -57,7 +57,7 @@ export class ReceiptScreen extends React.Component {
         return (
 			<ScrollView>
 				<Text style={styles.title}>Receipt</Text>
-				<Text>{receiptBody}</Text>
+				<Text>{JSON.stringify(receiptBody)}</Text>
 			</ScrollView>
         )
     }
