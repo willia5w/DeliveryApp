@@ -4,7 +4,8 @@ import {
     Image,
     StyleSheet,
     ScrollView,
-    Text
+    Text,
+    View
 } from 'react-native';
 import { Form, TextValidator } from 'react-native-validator-form';
 
@@ -144,7 +145,8 @@ export class CheckoutScreen extends React.Component {
                     <TextValidator
                         name="phone"
                         style={styles.textInput}
-                        validators={['required', 'isNumber', 'matchRegexp:^[0-9]{9,11}$']}
+                        maxLength={11}
+                        validators={['required', 'isNumber', 'matchRegexp:^[0-9]{10,11}$']}
                         errorMessages={['Phone number is required', 'Phone invalid', 'inv']}
                         placeholder="Your phone..."
                         value={phone}
@@ -165,39 +167,45 @@ export class CheckoutScreen extends React.Component {
                     <TextValidator
                         name="creditCardNumber"
                         style={styles.textInput}
+                        maxLength={16}
                         validators={['required', 'matchRegexp:^[0-9]{16}$']}
                         errorMessages={['Credit Card Number is required', 'Credit Card Number invalid']}
                         placeholder="Your 16 digit credit card number..."
                         value={creditCardNumber}
                         onChangeText={(text) => this.setState({ creditCardNumber: text })}
                     />
-                    <TextValidator
-                        name="cvv"
-                        style={styles.textInput}
-                        validators={['required', 'matchRegexp:^[0-9]{3}$']}
-                        errorMessages={['CVV number is required', 'CVV number invalid']}
-                        placeholder="Your 3 digit credit card cvv..."
-                        value={cvv}
-                        onChangeText={(text) => this.setState({ cvv: text })}
-                    />
-                    <TextValidator
-                        name="expirationMonth"
-                        style={styles.textInput}
-                        validators={['required', 'isNumber', 'minNumber:1', 'maxNumber:12']}
-                        errorMessages={['Expiration Month is required', 'Month invalid', 'Month invalid', 'Month invalid']}
-                        placeholder="Your credit card expiration month..."
-                        value={expirationMonth}
-                        onChangeText={(text) => this.setState({ expirationMonth: text, cardExpired: false })}
-                    />
-                    <TextValidator
-                        name="expirationYear"
-                        style={styles.textInput}
-                        validators={['required', 'isNumber', 'minNumber:2019']}
-                        errorMessages={['Expiration Year is required', 'Year invalid', 'Year invalid']}
-                        placeholder="Your credit card expiration year..."
-                        value={expirationYear}
-                        onChangeText={(text) => this.setState({ expirationYear: text, cardExpired: false })}
-                    />
+                    <View style={{ flexDirection: 'row' }} >
+                        <TextValidator
+                            name="expirationMonth"
+                            style={styles.inLineInput}
+                            maxLength={2}
+                            validators={['required', 'isNumber', 'minNumber:1', 'maxNumber:12']}
+                            errorMessages={['Expiration Month is required', 'Month invalid', 'Month invalid', 'Month invalid']}
+                            placeholder="Expiration month..."
+                            value={expirationMonth}
+                            onChangeText={(text) => this.setState({ expirationMonth: text, cardExpired: false })}
+                        />
+                        <TextValidator
+                            name="expirationYear"
+                            style={styles.inLineInput}
+                            maxLength={4}
+                            validators={['required', 'isNumber', 'minNumber:2019']}
+                            errorMessages={['Expiration Year is required', 'Year invalid', 'Year invalid']}
+                            placeholder="Expiration year..."
+                            value={expirationYear}
+                            onChangeText={(text) => this.setState({ expirationYear: text, cardExpired: false })}
+                        />
+                        <TextValidator
+                            name="cvv"
+                            style={styles.inLineInput}
+                            maxLength={3}
+                            validators={['required', 'matchRegexp:^[0-9]{3}$']}
+                            errorMessages={['CVV number is required', 'CVV number invalid']}
+                            placeholder="cvv..."
+                            value={cvv}
+                            onChangeText={(text) => this.setState({ cvv: text })}
+                        />
+                    </View>
                     {cardExpired ? <Text>Credit card is expired :/</Text> : null}
                     <Button
                         title="Submit"
@@ -234,12 +242,23 @@ const styles = StyleSheet.create({
     },
     textInput: {
         borderColor: '#CCCCCC',
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
+        borderTopWidth: 0,
+        borderBottomWidth: 2,
         height: 50,
         fontSize: 15,
         paddingLeft: 20,
-        paddingRight: 20
+        paddingRight: 20,
+    },
+    inLineInput: {
+        borderColor: '#CCCCCC',
+        borderBottomWidth: 2,
+        height: 50,
+        width: "100%",
+        fontSize: 15,
+        paddingLeft: 16,
+        paddingRight: 16,
+        borderLeftWidth: 1,
+        borderRightWidth: 1
     },
     title: {
         fontSize: 50,
