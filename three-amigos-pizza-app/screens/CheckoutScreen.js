@@ -28,12 +28,12 @@ export class CheckoutScreen extends React.Component {
         cardExpired: false
     }
 
-    // Only gets called if all validations are passed
+    // Submit only gets called if all validations are passed
     handleSubmit = () => {
-        this.submitOrder();
+        this.refs.form.submit();
     }
 
-    submitOrder = () => {
+    submit = () => {
         if (this.validatePayment()) {
             this.postCustomer();
         } else {
@@ -42,7 +42,7 @@ export class CheckoutScreen extends React.Component {
         }
     }
 
-    // extra validation for expiration
+    // extra validation for payment expiration
     validatePayment = () => {
         const { timeProcessed, expirationYear, expirationMonth } = this.state;
         if (timeProcessed.getFullYear() > expirationYear) {
@@ -127,7 +127,7 @@ export class CheckoutScreen extends React.Component {
                 <Text style={styles.title}>Checkout</Text>
                 <Form
                     ref="form"
-                    onSubmit={this.handleSubmit} // Only fires when all validations are passed
+                    onSubmit={this.submit} // Only fires when all validations are passed
                 >
                     <Text style={styles.header}>Contact Info</Text>
                     <TextValidator
