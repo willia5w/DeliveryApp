@@ -5,6 +5,7 @@ import { MenuScreen } from '../screens/MenuScreen';
 import { OrderScreen } from '../screens/OrderScreen';
 import { StoreScreen } from '../screens/StoreScreen';
 import { CheckoutScreen } from '../screens/CheckoutScreen';
+import { ReceiptScreen } from '../screens/ReceiptScreen';
 
 
 export default createAppContainer(
@@ -14,6 +15,7 @@ export default createAppContainer(
     Store: StoreScreen,
     Menu: MenuScreen,
     Order: OrderScreen,
-    Checkout: CheckoutScreen
+    Checkout: CheckoutScreen,
+    Receipt: ReceiptScreen
   })
 );

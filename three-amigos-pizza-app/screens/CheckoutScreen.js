@@ -7,14 +7,12 @@ import {
     TextInput,
     View
 } from 'react-native';
-import Customer from '../components/Customer';
-
 
 export class CheckoutScreen extends React.Component {
     state = {
         isLoading: true,
         orderId: this.props.navigation.getParam('orderId'),
-        storeId: this.props.navigation.getParam('storeId'),
+        storeId: "",
         order: null,
         // customerInfo: {
         name: null,
@@ -30,6 +28,7 @@ export class CheckoutScreen extends React.Component {
         errorMessage: null
     }
 
+
     getOrderHandler = () => {
         fetch('https://three-amigos-prod.herokuapp.com/order/' + this.state.orderId)  // this.props.navigation.getParam('orderId')
         .then(response => response.json())
@@ -37,7 +36,9 @@ export class CheckoutScreen extends React.Component {
             this.setState({
                 order:responseJson,
                 isLoading: false
-            })
+            },
+            function(){
+            });
         })
     }
 
@@ -89,7 +90,7 @@ export class CheckoutScreen extends React.Component {
                 customerId: responseJson._id,
                 isLoading: true
             }, function() {
-                console.log('\n1. customer object created: ' + JSON.stringify(responseJson))
+                console.log('\n   customer object created: ' + JSON.stringify(responseJson))
                 console.log(`\n   customerId recorded: ${this.state.customerId}`)
                 this.addCustomerToOrder();
             });
@@ -110,9 +111,12 @@ export class CheckoutScreen extends React.Component {
         .then((response) => response.json())
         .then(responseJson => {
             this.setState({
-
+                storeId:responseJson.storeId,
+                order:JSON.stringify(responseJson)
             }, function() {
-                console.log('\n2. add customer to order response: ' + JSON.stringify(responseJson))
+                console.log('\n add customer to order response: ' + JSON.stringify(responseJson))
+                console.log(`\n storeId recorded: ${this.state.storeId}`)
+                console.log(`\n orderId recorded: ${this.state.orderId}`)
                 this.processOrder();
             });
         })
@@ -122,7 +126,21 @@ export class CheckoutScreen extends React.Component {
     }
 
     processOrder = () => {
-
+        fetch(('https://three-amigos-prod.herokuapp.com/store/' + this.state.storeId + '/customer?customerId=' + this.state.orderId), {
+            method: 'PUT',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then((response) => response.json())
+        .then(responseJson => {
+            console.log('\n   checkout order response: ' + JSON.stringify(responseJson)),
+            this.props.navigation.navigate('Receipt', {order: this.state.order, storeId: this.state.storeId, orderId: this.state.orderId});
+        })
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     render() {
@@ -130,7 +148,7 @@ export class CheckoutScreen extends React.Component {
         return (
             <ScrollView>
                 <Text style={styles.title}>Checkout</Text>
-                
+
                 <Text>{errorMessage}</Text>
                 
                 <View style={styles.inputContainer}>
@@ -218,22 +236,3 @@ const styles = StyleSheet.create({
         textAlign: 'center'
 	}
 });
-
-
-    // checkoutOrder = () => {
-    //     // fetch(`https://quiet-tor-41409.herokuapp.com/store/${this.state.storeId}/customer?customerId=${this.state.orderId}`, {
-    //     fetch(('https://three-amigos-prod.herokuapp.com/store/' + this.state.storeId + '/customer?customerId=' + this.state.orderId), {
-    //         method: 'PUT',
-    //         headers: {
-    //             Accept: 'application/json',
-    //             'Content-Type': 'application/json'
-    //         }
-    //     })
-    //     .then((response) => response.json())
-    //     .then(responseJson => {
-    //         console.log('\n3. checkout order response: ' + JSON.stringify(responseJson))
-    //     })
-    //     .catch((error) => {
-    //         console.error(error);
-    //     });
-    // }
