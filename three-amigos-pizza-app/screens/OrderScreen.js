@@ -19,12 +19,14 @@ export class OrderScreen extends React.Component {
             isLoading: true,
             order: {},
             orderId: this.props.navigation.getParam('orderId'),
-            pizzas: []
+            pizzas: [],
+            specials: this.props.navigation.getParam('specials'),
         };
     }
 
     componentDidMount = async () => {
         await this.getOrderInfo();
+        await this.checkSpecials();
         this.setState({ isLoading: false});
     }
 
@@ -35,7 +37,8 @@ export class OrderScreen extends React.Component {
                 this.setState({
                     order: responseJson
                 }, function(){
-                    this.getPizzas(this.state.order.orderItems.pizzas);
+                    const { order } = this.state;
+                    this.getPizzas(order.orderItems.pizzas);
                     this.setState({isLoading: false});
                 });
         })
@@ -74,6 +77,32 @@ export class OrderScreen extends React.Component {
 
     proceedToCheckout = () => {
         this.props.navigation.navigate('Checkout', {storeId: this.state.orderId.storeId, orderId: this.state.orderId});
+    }
+
+    checkSpecials = () => {
+        const { specials, pizzas } = this.state;
+        let obj = {};
+        for (let i = 0; i < specials.length; i++) {
+            obj[specials[i]._id] = [];
+        }
+        console.log("obj: " + JSON.stringify(obj));
+        console.log("specials: " + JSON.stringify(specials) + "pizzas: " + JSON.stringify(pizzas));
+        for (let i = 0; i < specials.length; i++) {
+            for (let j = 0; j < pizzas.length; j++) {
+                if (specials[i].requiredSizeOfPizzas._id == pizzas[j].size._id) {
+                    obj[specials[i]._id].push(pizzas[j]._id);
+                }
+                if (obj[specials[i]._id].length == specials[i].requiredNumberPizzas) {
+                    // print out things neeeded for adding special to order
+                }
+            }
+        }
+
+        for (let i = 0; i < specials.length; i++) {
+            if (obj[specials[i]._id].length >= specials[i].requiredNumberPizzas) {
+
+            }
+        }
     }
  
     render() {
