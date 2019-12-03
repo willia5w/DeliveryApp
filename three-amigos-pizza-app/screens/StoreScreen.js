@@ -22,7 +22,7 @@ export class StoreScreen extends React.Component {
     }
 
     getStores = () => {
-        return fetch('https://three-amigos-prod.herokuapp.com/store')
+        return fetch(`${global.API_ROOT}/store`)
             .then((response) => response.json())
             .then((responseJson) => {
                 this.setState({

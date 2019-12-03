@@ -57,7 +57,7 @@ export class CheckoutScreen extends React.Component {
 
     // 1. post customer to db
     postCustomer = () => {
-        fetch('https://three-amigos-prod.herokuapp.com/customer/', {
+        fetch(`${global.API_ROOT}/customer/`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -85,7 +85,7 @@ export class CheckoutScreen extends React.Component {
 
     // 2. add customer to the order
     addCustomerToOrder = (customerId) => {
-        fetch(`https://three-amigos-prod.herokuapp.com/order/${this.state.orderId}/customer?customerId=${customerId}`, {
+        fetch(`${global.API_ROOT}/order/${this.state.orderId}/customer?customerId=${customerId}`, {
             method: 'PUT',
             headers: {
                 Accept: 'application/json',

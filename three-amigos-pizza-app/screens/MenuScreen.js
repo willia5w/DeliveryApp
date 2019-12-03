@@ -51,7 +51,7 @@ export class MenuScreen extends React.Component {
 		for (let i = 0; i < customToppingIds.length; i++) {
 			toppingIdString += "&toppingIds=" + customToppingIds[i];
 		}
-		fetch('https://three-amigos-prod.herokuapp.com/order/' + orderId + '/addCustomPizza?name='+ customPizzaName +'&crustId=' + customCrustType + toppingIdString + '&sizeId=' + customSizeId, {
+		fetch(`${global.API_ROOT}/order/${orderId}/addCustomPizza?name=${customPizzaName}&crustId=${customCrustType + toppingIdString}&sizeId=${customSizeId}`, {
 			method: 'PUT',
 			headers: {
 				Accept: 'application/json',
@@ -72,7 +72,8 @@ export class MenuScreen extends React.Component {
 
 	addMenuPizzaToOrder = (pizzaId, sizeId) => {
 		this.setState({isLoading: true});
-		fetch('https://three-amigos-prod.herokuapp.com/order/'+ this.state.orderId +'/addPizzaById?pizzaId=' + pizzaId + '&sizeId=' + sizeId, {
+        fetch(`${global.API_ROOT}/order/${this.state.orderId}/addPizzaById?pizzaId=${pizzaId}&sizeId=${sizeId}`, {
+        // fetch('https://three-amigos-prod.herokuapp.com/order/'+ this.state.orderId +'/addPizzaById?pizzaId=' + pizzaId + '&sizeId=' + sizeId, {
 			method: 'PUT',
 			headers: {
 				Accept: 'application/json',
@@ -93,7 +94,7 @@ export class MenuScreen extends React.Component {
 	}
 
 	createOrder = (storeId) => {
-		fetch('https://three-amigos-prod.herokuapp.com/order/?storeId=' + storeId, {
+		fetch(`${global.API_ROOT}/order/?storeId=${storeId}`, {
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',
@@ -114,7 +115,7 @@ export class MenuScreen extends React.Component {
 	}
 
 	getAllCrusts = () => {
-		return fetch('https://three-amigos-prod.herokuapp.com/pizza/crust')
+		return fetch(`${global.API_ROOT}/pizza/crust`)
 			.then((response) => response.json())
 			.then((responseJson) => {
 				this.setState({
@@ -128,7 +129,7 @@ export class MenuScreen extends React.Component {
 	}
 
 	getAllSizes = () => {
-		return fetch('https://three-amigos-prod.herokuapp.com/pizza/size')
+		return fetch(`${global.API_ROOT}/pizza/size`)
 			.then((response) => response.json())
 			.then((responseJson) => {
 				this.setState({
@@ -143,7 +144,7 @@ export class MenuScreen extends React.Component {
 	}
 	
 	getAllToppings = () => {
-		return fetch('https://three-amigos-prod.herokuapp.com/pizza/topping')
+		return fetch(`${global.API_ROOT}/pizza/topping`)
 			.then((response) => response.json())
 			.then((responseJson) => {
 				this.setState({
