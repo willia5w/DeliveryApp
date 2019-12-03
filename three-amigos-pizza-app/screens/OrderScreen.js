@@ -30,7 +30,7 @@ export class OrderScreen extends React.Component {
     }
 
     getOrderInfo = () => {
-        return fetch('https://three-amigos-prod.herokuapp.com/order/' + this.state.orderId)
+        return fetch(`${global.API_ROOT}/order/${this.state.orderId}`)
             .then((response) => response.json())
             .then((responseJson) => {
                 this.setState({
@@ -48,7 +48,7 @@ export class OrderScreen extends React.Component {
     removePizzaFromOrder = (pizzaId) => {
         this.setState({isLoading: true});
         this.setState({pizzas: []});
-        fetch(`https://three-amigos-prod.herokuapp.com/order/${this.state.orderId}/removePizza?pizzaId=${pizzaId}`, {
+        fetch(`${global.API_ROOT}/order/${this.state.orderId}/removePizza?pizzaId=${pizzaId}`, {
 			method: 'DELETE',
 			headers: {
 				Accept: 'application/json',

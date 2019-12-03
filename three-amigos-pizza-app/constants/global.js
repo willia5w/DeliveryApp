@@ -1,0 +1,1 @@
+global.API_ROOT = 'https://three-amigos-prod.herokuapp.com';

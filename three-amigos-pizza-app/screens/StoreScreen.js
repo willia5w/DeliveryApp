@@ -22,7 +22,7 @@ export class StoreScreen extends React.Component {
     }
 
     getStores = () => {
-        return fetch('https://three-amigos-prod.herokuapp.com/store')
+        return fetch(`${global.API_ROOT}/store`)
             .then((response) => response.json())
             .then((responseJson) => {
                 this.setState({
@@ -67,7 +67,7 @@ export class StoreScreen extends React.Component {
                     <View style={styles.imageContainer}>
                         <Image 
                             style={styles.image}
-                            source={require('../assets/images/pizza-1428931_1280.png')}
+                            source={require('../assets/images/pizza-icon.png')}
                         />
                     </View>
                     <Text style={styles.select}>Select a Store</Text>

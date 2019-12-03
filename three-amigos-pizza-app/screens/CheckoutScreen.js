@@ -1,9 +1,11 @@
 import React from 'react';
 import {
     Button,
+    Image,
     StyleSheet,
     ScrollView,
-    Text
+    Text,
+    View
 } from 'react-native';
 import { Form, TextValidator } from 'react-native-validator-form';
 
@@ -28,12 +30,12 @@ export class CheckoutScreen extends React.Component {
         cardExpired: false
     }
 
-    // Only gets called if all validations are passed
+    // Submit only gets called if all validations are passed
     handleSubmit = () => {
-        this.submitOrder();
+        this.refs.form.submit();
     }
 
-    submitOrder = () => {
+    submit = () => {
         if (this.validatePayment()) {
             this.postCustomer();
         } else {
@@ -42,7 +44,7 @@ export class CheckoutScreen extends React.Component {
         }
     }
 
-    // extra validation for expiration
+    // extra validation for payment expiration
     validatePayment = () => {
         const { timeProcessed, expirationYear, expirationMonth } = this.state;
         if (timeProcessed.getFullYear() > expirationYear) {
@@ -57,7 +59,7 @@ export class CheckoutScreen extends React.Component {
 
     // 1. post customer to db
     postCustomer = () => {
-        fetch('https://three-amigos-prod.herokuapp.com/customer/', {
+        fetch(`${global.API_ROOT}/customer/`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -85,7 +87,7 @@ export class CheckoutScreen extends React.Component {
 
     // 2. add customer to the order
     addCustomerToOrder = (customerId) => {
-        fetch(`https://three-amigos-prod.herokuapp.com/order/${this.state.orderId}/customer?customerId=${customerId}`, {
+        fetch(`${global.API_ROOT}/order/${this.state.orderId}/customer?customerId=${customerId}`, {
             method: 'PUT',
             headers: {
                 Accept: 'application/json',
@@ -109,10 +111,11 @@ export class CheckoutScreen extends React.Component {
 
     // 3. pass the order details to receipt page
     processOrder = (orderDetails) => {
-        console.log(JSON.stringify(orderDetails))
-        this.props.navigation.navigate('Receipt', { order: orderDetails, 
-                                                    storeId: orderDetails.storeId,
-                                                orderId: orderDetails._id});
+        this.props.navigation.navigate('Receipt', {
+            order: orderDetails,
+            storeId: orderDetails.storeId,
+            orderId: orderDetails._id
+        });
     }
 
     render() {
@@ -127,14 +130,14 @@ export class CheckoutScreen extends React.Component {
                 <Text style={styles.title}>Checkout</Text>
                 <Form
                     ref="form"
-                    onSubmit={this.handleSubmit} // Only fires when all validations are passed
+                    onSubmit={this.submit} // Only fires when all validations are passed
                 >
                     <Text style={styles.header}>Contact Info</Text>
                     <TextValidator
                         name="name"
                         style={styles.textInput}
                         validators={['required', 'isString']}
-                        errorMessages={['Name is required', 'Name invalid']}
+                        errorMessages={['*required', 'Name invalid']}
                         placeholder="Your name..."
                         value={name}
                         onChangeText={(text) => this.setState({ name: text })}
@@ -142,8 +145,9 @@ export class CheckoutScreen extends React.Component {
                     <TextValidator
                         name="phone"
                         style={styles.textInput}
-                        validators={['required', 'isNumber', 'matchRegexp:^[0-9]{9,11}$']}
-                        errorMessages={['Phone number is required', 'Phone invalid', 'inv']}
+                        maxLength={11}
+                        validators={['required', 'isNumber', 'matchRegexp:^[0-9]{10,11}$']}
+                        errorMessages={['*required', 'Phone invalid', 'inv']}
                         placeholder="Your phone..."
                         value={phone}
                         onChangeText={(text) => this.setState({ phone: text })}
@@ -152,7 +156,7 @@ export class CheckoutScreen extends React.Component {
                         name="address"
                         style={styles.textInput}
                         validators={['required', 'isString']}
-                        errorMessages={['Address is required', 'Address invalid']}
+                        errorMessages={['*required', 'Address invalid']}
                         placeholder="Your address..."
                         value={address}
                         onChangeText={(text) => this.setState({ address: text })}
@@ -163,39 +167,45 @@ export class CheckoutScreen extends React.Component {
                     <TextValidator
                         name="creditCardNumber"
                         style={styles.textInput}
+                        maxLength={16}
                         validators={['required', 'matchRegexp:^[0-9]{16}$']}
-                        errorMessages={['Credit Card Number is required', 'Credit Card Number invalid']}
+                        errorMessages={['*required', 'Credit Card Number invalid']}
                         placeholder="Your 16 digit credit card number..."
                         value={creditCardNumber}
                         onChangeText={(text) => this.setState({ creditCardNumber: text })}
                     />
-                    <TextValidator
-                        name="cvv"
-                        style={styles.textInput}
-                        validators={['required', 'matchRegexp:^[0-9]{3}$']}
-                        errorMessages={['CVV number is required', 'CVV number invalid']}
-                        placeholder="Your 3 digit credit card cvv..."
-                        value={cvv}
-                        onChangeText={(text) => this.setState({ cvv: text })}
-                    />
-                    <TextValidator
-                        name="expirationMonth"
-                        style={styles.textInput}
-                        validators={['required', 'isNumber', 'minNumber:1', 'maxNumber:12']}
-                        errorMessages={['Expiration Month is required', 'Month invalid', 'Month invalid', 'Month invalid']}
-                        placeholder="Your credit card expiration month..."
-                        value={expirationMonth}
-                        onChangeText={(text) => this.setState({ expirationMonth: text, cardExpired: false })}
-                    />
-                    <TextValidator
-                        name="expirationYear"
-                        style={styles.textInput}
-                        validators={['required', 'isNumber', 'minNumber:2019']}
-                        errorMessages={['Expiration Year is required', 'Year invalid', 'Year invalid']}
-                        placeholder="Your credit card expiration year..."
-                        value={expirationYear}
-                        onChangeText={(text) => this.setState({ expirationYear: text, cardExpired: false })}
-                    />
+                    <View style={{ flexDirection: 'row' }} >
+                        <TextValidator
+                            name="expirationMonth"
+                            style={styles.inLineInput}
+                            maxLength={2}
+                            validators={['required', 'isNumber', 'minNumber:1', 'maxNumber:12']}
+                            errorMessages={['*required', 'Month invalid', 'Month invalid', 'Month invalid']}
+                            placeholder="Expiration month..."
+                            value={expirationMonth}
+                            onChangeText={(text) => this.setState({ expirationMonth: text, cardExpired: false })}
+                        />
+                        <TextValidator
+                            name="expirationYear"
+                            style={styles.inLineInput}
+                            maxLength={4}
+                            validators={['required', 'isNumber', 'minNumber:2019']}
+                            errorMessages={['*required', 'Year invalid', 'Year invalid']}
+                            placeholder="Expiration year..."
+                            value={expirationYear}
+                            onChangeText={(text) => this.setState({ expirationYear: text, cardExpired: false })}
+                        />
+                        <TextValidator
+                            name="cvv"
+                            style={styles.inLineInput}
+                            maxLength={3}
+                            validators={['required', 'matchRegexp:^[0-9]{3}$']}
+                            errorMessages={['*required', 'CVV number invalid']}
+                            placeholder="CVV..."
+                            value={cvv}
+                            onChangeText={(text) => this.setState({ cvv: text })}
+                        />
+                    </View>
                     {cardExpired ? <Text>Credit card is expired :/</Text> : null}
                     <Button
                         title="Submit"
@@ -219,6 +229,11 @@ const styles = StyleSheet.create({
         margin: 10,
         fontWeight: 'bold'
     },
+    icon: {
+        marginVertical: 10,
+        height: 50,
+        width: 50
+    },
     inputContainer: {
         paddingTop: 15
     },
@@ -227,12 +242,23 @@ const styles = StyleSheet.create({
     },
     textInput: {
         borderColor: '#CCCCCC',
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
+        borderTopWidth: 0,
+        borderBottomWidth: 2,
         height: 50,
         fontSize: 15,
-        paddingLeft: 20,
-        paddingRight: 20
+        paddingLeft: 15,
+        paddingRight: 15,
+    },
+    inLineInput: {
+        borderColor: '#CCCCCC',
+        borderBottomWidth: 2,
+        height: 50,
+        width: "100%",
+        fontSize: 15,
+        paddingLeft: 15,
+        paddingRight: 15,
+        borderLeftWidth: 1,
+        borderRightWidth: 1
     },
     title: {
         fontSize: 50,
