@@ -137,7 +137,7 @@ export class CheckoutScreen extends React.Component {
                         name="name"
                         style={styles.textInput}
                         validators={['required', 'isString']}
-                        errorMessages={['Name is required', 'Name invalid']}
+                        errorMessages={['*required', 'Name invalid']}
                         placeholder="Your name..."
                         value={name}
                         onChangeText={(text) => this.setState({ name: text })}
@@ -147,7 +147,7 @@ export class CheckoutScreen extends React.Component {
                         style={styles.textInput}
                         maxLength={11}
                         validators={['required', 'isNumber', 'matchRegexp:^[0-9]{10,11}$']}
-                        errorMessages={['Phone number is required', 'Phone invalid', 'inv']}
+                        errorMessages={['*required', 'Phone invalid', 'inv']}
                         placeholder="Your phone..."
                         value={phone}
                         onChangeText={(text) => this.setState({ phone: text })}
@@ -156,7 +156,7 @@ export class CheckoutScreen extends React.Component {
                         name="address"
                         style={styles.textInput}
                         validators={['required', 'isString']}
-                        errorMessages={['Address is required', 'Address invalid']}
+                        errorMessages={['*required', 'Address invalid']}
                         placeholder="Your address..."
                         value={address}
                         onChangeText={(text) => this.setState({ address: text })}
@@ -169,7 +169,7 @@ export class CheckoutScreen extends React.Component {
                         style={styles.textInput}
                         maxLength={16}
                         validators={['required', 'matchRegexp:^[0-9]{16}$']}
-                        errorMessages={['Credit Card Number is required', 'Credit Card Number invalid']}
+                        errorMessages={['*required', 'Credit Card Number invalid']}
                         placeholder="Your 16 digit credit card number..."
                         value={creditCardNumber}
                         onChangeText={(text) => this.setState({ creditCardNumber: text })}
@@ -180,7 +180,7 @@ export class CheckoutScreen extends React.Component {
                             style={styles.inLineInput}
                             maxLength={2}
                             validators={['required', 'isNumber', 'minNumber:1', 'maxNumber:12']}
-                            errorMessages={['Expiration Month is required', 'Month invalid', 'Month invalid', 'Month invalid']}
+                            errorMessages={['*required', 'Month invalid', 'Month invalid', 'Month invalid']}
                             placeholder="Expiration month..."
                             value={expirationMonth}
                             onChangeText={(text) => this.setState({ expirationMonth: text, cardExpired: false })}
@@ -190,7 +190,7 @@ export class CheckoutScreen extends React.Component {
                             style={styles.inLineInput}
                             maxLength={4}
                             validators={['required', 'isNumber', 'minNumber:2019']}
-                            errorMessages={['Expiration Year is required', 'Year invalid', 'Year invalid']}
+                            errorMessages={['*required', 'Year invalid', 'Year invalid']}
                             placeholder="Expiration year..."
                             value={expirationYear}
                             onChangeText={(text) => this.setState({ expirationYear: text, cardExpired: false })}
@@ -200,8 +200,8 @@ export class CheckoutScreen extends React.Component {
                             style={styles.inLineInput}
                             maxLength={3}
                             validators={['required', 'matchRegexp:^[0-9]{3}$']}
-                            errorMessages={['CVV number is required', 'CVV number invalid']}
-                            placeholder="cvv..."
+                            errorMessages={['*required', 'CVV number invalid']}
+                            placeholder="CVV..."
                             value={cvv}
                             onChangeText={(text) => this.setState({ cvv: text })}
                         />
@@ -246,8 +246,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 2,
         height: 50,
         fontSize: 15,
-        paddingLeft: 20,
-        paddingRight: 20,
+        paddingLeft: 15,
+        paddingRight: 15,
     },
     inLineInput: {
         borderColor: '#CCCCCC',
@@ -255,8 +255,8 @@ const styles = StyleSheet.create({
         height: 50,
         width: "100%",
         fontSize: 15,
-        paddingLeft: 16,
-        paddingRight: 16,
+        paddingLeft: 15,
+        paddingRight: 15,
         borderLeftWidth: 1,
         borderRightWidth: 1
     },
