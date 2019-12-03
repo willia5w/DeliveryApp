@@ -57,7 +57,7 @@ export class ReceiptScreen extends React.Component {
         return (
 			<ScrollView>
 				<Text style={styles.title}>Receipt</Text>
-				<Text>{receiptBody}</Text>
+				<Text>{JSON.stringify(receiptBody)}</Text>
 			</ScrollView>
         )
     }

@@ -109,7 +109,10 @@ export class CheckoutScreen extends React.Component {
 
     // 3. pass the order details to receipt page
     processOrder = (orderDetails) => {
-        this.props.navigation.navigate('Receipt', { order: orderDetails });
+        console.log(JSON.stringify(orderDetails))
+        this.props.navigation.navigate('Receipt', { order: orderDetails, 
+                                                    storeId: orderDetails.storeId,
+                                                orderId: orderDetails._id});
     }
 
     render() {
