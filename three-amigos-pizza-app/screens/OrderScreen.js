@@ -19,8 +19,11 @@ export class OrderScreen extends React.Component {
             isLoading: true,
             order: {},
             orderId: this.props.navigation.getParam('orderId'),
-            storeId: this.props.navigation.getParam('storeId'),
-            pizzas: []
+            pizzas: [],
+            specials: this.props.navigation.getParam('specials'),
+            special: null,
+            qualifiedPizzas: [],
+            totalAfterSpecial: null
         };
     }
 
@@ -36,8 +39,8 @@ export class OrderScreen extends React.Component {
                 this.setState({
                     order: responseJson
                 }, function(){
-                    this.getPizzas(this.state.order.orderItems.pizzas);
-                    this.setState({isLoading: false});
+                    const { order } = this.state;
+                    this.getPizzas(order.orderItems.pizzas);
                 });
         })
         .catch((error) =>{
@@ -57,7 +60,7 @@ export class OrderScreen extends React.Component {
 		}).then((response) => response.json())
 		.then((responseJson) => {
 			this.setState({
-				order: responseJson
+                order: responseJson
 			}, function() {
                 this.getOrderInfo();
 			})
@@ -71,10 +74,62 @@ export class OrderScreen extends React.Component {
         for (let item in pizzaArray) {
             this.state.pizzas.push(pizzaArray[item]);
         }
+        this.checkSpecials();
     }
 
     proceedToCheckout = () => {
         this.props.navigation.navigate('Checkout', {storeId: this.state.orderId.storeId, orderId: this.state.orderId});
+    }
+
+    checkSpecials = () => {
+        const { specials, pizzas } = this.state;
+        let obj = {};
+        for (let i = 0; i < specials.length; i++) {
+            obj[specials[i]._id] = [];
+        }
+        for (let i = 0; i < specials.length; i++) {
+            for (let j = 0; j < pizzas.length; j++) {
+                if (specials[i].requiredSizeOfPizzas._id == pizzas[j].size._id) {
+                    obj[specials[i]._id].push(pizzas[j]);
+                }
+                if (obj[specials[i]._id].length == specials[i].requiredNumberPizzas) {
+                    this.setState({special: specials[i]});
+                    this.setState({isLoading: false});
+                    this.setState({qualifiedPizzas: obj[specials[i]._id]});
+                    return;
+                }
+            }
+        }
+        this.setState({special: null});
+        this.setState({isLoading: false});
+    }
+
+    applySpecial = () => {
+        this.setState({isLoading: true});
+        let count = 0;
+        const { pizzas, qualifiedPizzas, special } = this.state;
+        for (i = 0; i < qualifiedPizzas.length; i++) {
+            for (j = 0; j < pizzas.length; j++) {
+                if (qualifiedPizzas[i]._id == pizzas[j]._id) {
+                    count++;
+                    pizzas[j].price = pizzas[j].price * special.specialPriceRatio;
+                    if (count == qualifiedPizzas.length) {
+                        this.getPrice();
+                        return
+                    }
+                }
+            }
+        }
+    }
+
+    getPrice = () => {
+        const { pizzas } = this.state;
+        let total = 0.0;
+        for (let i = 0; i < pizzas.length; i++) {
+            total += pizzas[i].price;
+        }
+        this.setState({totalAfterSpecial: total});
+        this.setState({isLoading: false});
     }
  
     render() {
@@ -91,6 +146,18 @@ export class OrderScreen extends React.Component {
                 />
             )
         });
+
+        const specialAlert = (
+            <View>
+                <Text>Would you like to apply this special? </Text>
+                <Text>{this.state.special ? this.state.special.name : null}</Text>
+                <Button title="Apply" onPress={this.applySpecial} />
+            </View>
+        )
+
+        const totalAfterSpecialApplied = (
+            <Text>Total after special application: ${this.state.totalAfterSpecial ? this.state.totalAfterSpecial.toFixed(2) : null}</Text>
+        )
 
         const orderContent = (
             <View style={styles.contentContainer}>
@@ -114,7 +181,9 @@ export class OrderScreen extends React.Component {
                         {renderItems}
                     </View>
                     <View style={styles.total}>
-                        <Text>Total price: ${this.state.order.price ? this.state.order.price.toFixed(2) : null}</Text>
+                        <Text>Subtotal: ${this.state.order.price ? this.state.order.price.toFixed(2) : null}</Text>
+                        {this.state.special ? specialAlert : null}
+                        {this.state.totalAfterSpecial ? totalAfterSpecialApplied : null}
                         <Button
                             title={"Proceed to Checkout"}
                             onPress={this.proceedToCheckout}
