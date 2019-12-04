@@ -18,13 +18,20 @@ export class CheckoutScreen extends React.Component {
         // time for validation
         timeProcessed: new Date(),
         // input info from form
-        name: '',
-        phone: '',
-        address: '',
-        creditCardNumber: '',
-        cvv: '',
-        expirationMonth: '',
-        expirationYear: '',
+        // name: '',
+        // phone: '',
+        // address: '',
+        // creditCardNumber: '',
+        // cvv: '',
+        // expirationMonth: '',
+        // expirationYear: '',
+        name: 'daniel',
+        phone: '3948482033',
+        address: '123',
+        creditCardNumber: '1111111111111111',
+        cvv: '452',
+        expirationMonth: '02',
+        expirationYear: '2020',
         // id of customer in db
         customerId: '',
         cardExpired: false,
@@ -140,7 +147,8 @@ export class CheckoutScreen extends React.Component {
         processOrder = (receiptDetails) => {
             this.props.navigation.navigate('Receipt', {
                 receipt: receiptDetails,
-                order: this.state.orderDetails
+                order: this.state.orderDetails,
+                totalAfterSpecial: this.props.navigation.getParam('totalAfterSpecial')
             });
             this.setState({ isLoading: false });
         }

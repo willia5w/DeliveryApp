@@ -78,7 +78,11 @@ export class OrderScreen extends React.Component {
     }
 
     proceedToCheckout = () => {
-        this.props.navigation.navigate('Checkout', {storeId: this.state.order.storeId, orderId: this.state.orderId});
+        this.props.navigation.navigate('Checkout', {
+            storeId: this.state.order.storeId,
+            orderId: this.state.orderId,
+            totalAfterSpecial: this.state.totalAfterSpecial
+        });
     }
 
     checkSpecials = () => {
@@ -148,8 +152,8 @@ export class OrderScreen extends React.Component {
         });
 
         const specialAlert = (
-            <View>
-                <Text>Would you like to apply this special? </Text>
+            <View style={styles.specialAlert}>
+                <Text>Would you like to apply this special?</Text>
                 <Text>{this.state.special ? this.state.special.name : null}</Text>
                 <Button title="Apply" onPress={this.applySpecial} />
             </View>
@@ -247,7 +251,8 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     total: {
-        alignItems: 'flex-end'
+        alignItems: 'flex-end',
+        marginHorizontal: 15
     },
     headerColumn: {
 		width: 70,
@@ -259,6 +264,9 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         textAlign: 'center',
         alignItems: 'center'
+    },
+    specialAlert: {
+        marginVertical: 10
     },
     text: {
         textAlign: 'center',

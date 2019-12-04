@@ -75,6 +75,7 @@ export class MenuItem extends React.Component {
 					</View>
 					<View style={styles.thinColumns}>
 						<ModalDropdown
+							dropdownStyle={styles.dropDownStyle}
 							options={sizes}
 							renderRow={this.renderRow}
 							renderButtonText={(rowData) => this.renderButtonText(rowData)}
@@ -111,6 +112,9 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		textAlign: 'center'
+	},
+	dropDownStyle: {
+		height: 50
 	},
 	error: {
 		color: 'red'
