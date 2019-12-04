@@ -1,16 +1,13 @@
 import React from 'react';
 import {
-    ActivityIndicator,
     Button,
-    Dimensions,
-    KeyboardAvoidingView,
+    Image,
     ScrollView,
     StyleSheet,
     Text,
-    TextInput,
     View
 } from 'react-native';
-import ReceiptItem from '../components/ReceiptItem';
+import { ReceiptItem } from '../components/ReceiptItem';
 
 
 export class ReceiptScreen extends React.Component {
@@ -20,57 +17,66 @@ export class ReceiptScreen extends React.Component {
     }
 
     componentDidMount = async () => {
-        console.log('\nreceipt: \n' + JSON.stringify(this.state.receiptDetails))
-        console.log('\norder: \n' + JSON.stringify(this.state.orderDetails))
-        console.log('\norder items:\n' + JSON.stringify(this.state.orderDetails.orderItems))
-        console.log('\npizzas: \n' + JSON.stringify(this.state.orderDetails.orderItems.pizzas))
-        // this.setState({ isLoading: false });
+        this.setState({ isLoading: false });
     }
 
-    getItems = () => {
-        const items = []
-        for (let item in this.state.orderDetails.orderItems.pizzas) {
-            console.log('\n item: ' + this.state.orderDetails.orderItems.pizzas[item])
-            items.push(this.state.orderDetails.orderItems.pizzas[item]);
-        }
-        return items;
+    handleTrackOrder = () => {
+        return;
     }
 
     render() {
-        const { receiptDetails, orderDetails} = this.state;
+        const { receiptDetails, orderDetails } = this.state;
 
-        // const renderItems = orderDetails.orderItems['pizzas'].map((item, i) => {
-        //     // const pizza = orderDetails.orderItems.pizzas[item];
-        //     // console.log('\n item: ' + item)
-        //     return (
-        //         <ReceiptItem
-        //             key={this.orderDetails.orderItems.pizzas[item]._id}
-        //             id={this.orderDetails.orderItems.pizzas[item]._id}
-        //             name={this.orderDetails.orderItems.pizzas[item].name}
-        //             price={this.orderDetails.orderItems.pizzas[item].price}
-        //         />
-        //     )
-        // });
-
-        const renderPizzas = this.state.receiptDetails.pizzas.map((pizzaName, i) => {
+        const renderItems = Object.values(orderDetails.orderItems.pizzas).map((item, i) => {
             return (
-                <Text key={i} style={styles.receiptItem}>{pizzaName} Pizza</Text>
+                <ReceiptItem
+                    key={item._id}
+                    id={item._id}
+                    name={'Pizza: ' + item.size.name + ' ' + item.name}
+                    price={item.price}
+                />
             )
-        })
+        });
+
         return (
             <View style={styles.container}>
-                <ScrollView
-                    style={styles.scrollView}
-                >
-                    <Text style={styles.title}>Receipt</Text>
-                    <Text style={styles.receiptItem}>Thank you for your order, {receiptDetails.customerName}</Text>
-                    <Text style={styles.receiptItem}>Date: {receiptDetails.timeOfPurchase}</Text>
-                    <Text style={styles.receiptItem}>Store: {receiptDetails.storeName}</Text>
-                    {/* <Text style={styles.header}>Items</Text>
-                    <View>{renderItems}</View> */}
+                <ScrollView>
+                    <View style={{ textAlign: 'center', flexDirection: 'row' }}>
+                        <Image style={styles.image} source={require('../assets/images/pizza-icon.png')} />
+                        <Text style={styles.title}>Receipt</Text>
+                        <Image style={styles.image} source={require('../assets/images/pizza-icon.png')} />
+                    </View>
+
+                    <Text style={styles.rowContent}>
+                        Thank you, {receiptDetails.customerName}. Your order is on it's way.{"\n"}
+                    </Text>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={styles.rowTitle}>Date: </Text>
+                        <Text style={styles.rowContent}>{receiptDetails.timeOfPurchase}</Text>
+                    </View>
+
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={styles.rowTitle}>Store: </Text>
+                        <Text style={styles.rowContent}>{receiptDetails.storeName}</Text>
+                    </View>
+
                     <Text style={styles.header}>Order Items: </Text>
-                    <View>{renderPizzas}</View>
-                    <Text style={styles.totalPrice}>Amount Paid: {this.state.orderDetails.price}</Text>
+                    <View>
+                        {renderItems}
+                    </View>
+                    <View style={{ flexDirection: 'row' }}>
+                        <View style={styles.name}>
+                            <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 5}}>Total</Text>
+                        </View>
+                        <View style={styles.price}>
+                            <Text style={{fontSize: 16, marginTop: 5}}>${orderDetails.price}</Text>
+                        </View>
+                    </View>
+
+                    <Button
+                        title="Track your order"
+                        onPress={this.handleTrackOrder}
+                    />
                 </ScrollView>
             </View>
         )
@@ -78,59 +84,45 @@ export class ReceiptScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+    price: {
+        width: 50,
+        marginHorizontal: 10
+    },
+    name: {
+        width: 200,
+        marginHorizontal: 10
+    },
     container: {
         flex: 1,
-        paddingTop: 45,
-        backgroundColor: '#F5FCFF',
+        marginTop: 10,
+        marginHorizontal: 10,
     },
-    contentContainer: {
-        alignItems: 'center'
+    rowContent: {
+        fontSize: 16,
+        marginLeft: 10,
+        marginRight: 10,
+        marginTop: 5
+    },
+    rowTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 10,
+        marginRight: 10,
+        marginTop: 5
     },
     header: {
-        fontSize: 25,
+        fontSize: 22,
         margin: 10,
         fontWeight: 'bold'
     },
-    receiptItem: {
-        fontSize: 18,
-        marginLeft: 10,
-        marginRight: 10,
-        marginTop: 2
-    },
-    totalPrice: {
-        marginTop: 20,
-        marginLeft: 10,
-        fontSize: 20,
-        fontWeight: 'bold',
-        alignItems: 'center'
+    image: {
+        height: 50,
+        width: 50,
+        marginLeft: 40,
+        marginRight: 40
     },
     title: {
         fontSize: 30,
         textAlign: 'center'
     }
 });
-
-
-
-    // completeOrder = () => {
-    //     this.setState({ isLoading: true });
-    //     fetch(`${global.API_ROOT}/store/${this.state.orderDetails.storeId}/complete?OrderId=${this.state.orderDetails._id}`, {
-    //         method: 'PUT',
-    //         headers: {
-    //             Accept: 'application/json',
-    //             'Content-Type': 'application/json',
-    //         }
-    //     }).then((response) => response.json())
-    //         .then((responseJson) => {
-    //             this.setState({
-    //                 store: responseJson,
-    //                 isLoading: false
-    //             }, function () {
-    //                 // Add delay in API to allow order to be added to store's order lists?
-    //                 console.log(JSON.stringify(this.state.store))
-    //             })
-    //         })
-    //         .catch((error) => {
-    //             console.error(error);
-    //         });
-    // }

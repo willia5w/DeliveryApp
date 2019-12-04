@@ -18,11 +18,11 @@ export class ReceiptItem extends React.Component {
         const { name, price } = this.props;
         return (
             <View style={styles.container}>
-                <View style={styles.column}>
+                <View style={styles.name}>
                     <Text style={styles.text}>{name}</Text>
                 </View>
-                <View style={styles.column}>
-                    <Text style={styles.text}>${price.toFixed(2)}</Text>
+                <View style={styles.price}>
+                    <Text style={styles.text}>${price}</Text>
                 </View>
             </View>
         );
@@ -30,21 +30,23 @@ export class ReceiptItem extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    button: {
-        fontSize: 14
+    price: {
+        width: 50,
+        marginHorizontal: 10
+    },
+    name: {
+        width: 200,
+        marginHorizontal: 10
     },
     column: {
-        width: 70,
-        justifyContent: 'center',
+        width: 150,
         marginHorizontal: 5
     },
     container: {
 		flexDirection: 'row',
         flexWrap: 'wrap',
-        textAlign: 'center'
     },
     text: {
         fontSize: 14,
-        textAlign: 'center'
     }
 });

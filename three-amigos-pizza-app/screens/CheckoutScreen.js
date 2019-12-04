@@ -1,7 +1,7 @@
 import React from 'react';
 import {
+    ActivityIndicator,
     Button,
-    Image,
     StyleSheet,
     ScrollView,
     Text,
@@ -9,34 +9,31 @@ import {
 } from 'react-native';
 import { Form, TextValidator } from 'react-native-validator-form';
 
-
 export class CheckoutScreen extends React.Component {
     state = {
+        isLoading: true,
         // props
         orderId: this.props.navigation.getParam('orderId'),
         storeId: this.props.navigation.getParam('storeId'),
         // time for validation
         timeProcessed: new Date(),
         // input info from form
-        // name: '',
-        // phone: '',
-        // address: '',
-        // creditCardNumber: '',
-        // cvv: '',
-        // expirationMonth: '',
-        // expirationYear: '',
-        name: 'Bob Shnob',
-        phone: '2061234567',
-        address: '69 b street',
-        creditCardNumber: '1234567812345678',
-        cvv: '123',
-        expirationMonth: '12',
-        expirationYear: '2020',
+        name: '',
+        phone: '',
+        address: '',
+        creditCardNumber: '',
+        cvv: '',
+        expirationMonth: '',
+        expirationYear: '',
         // id of customer in db
         customerId: '',
         cardExpired: false,
         // order details
         orderDetails: {}
+    }
+
+    componentDidMount = () => {
+        this.setState({ isLoading: false});
     }
 
     // Submit only gets called if all validations are passed
@@ -46,6 +43,7 @@ export class CheckoutScreen extends React.Component {
 
     submit = () => {
         if (this.validatePayment()) {
+            this.setState({ isLoading: true});
             this.postCustomer();
         } else {
             this.setState({ cardExpired: true })
@@ -96,7 +94,6 @@ export class CheckoutScreen extends React.Component {
 
     // 2. add customer to the order
     addCustomerToOrder = (customerId) => {
-        console.log('\n StoreId: ' + this.state.storeId)
         fetch(`${global.API_ROOT}/order/${this.state.orderId}/customer?customerId=${customerId}`, {
             method: 'PUT',
             headers: {
@@ -145,6 +142,7 @@ export class CheckoutScreen extends React.Component {
                 receipt: receiptDetails,
                 order: this.state.orderDetails
             });
+            this.setState({ isLoading: false });
         }
 
     render() {
@@ -154,7 +152,11 @@ export class CheckoutScreen extends React.Component {
             cardExpired
         } = this.state;
 
-        return (
+        const loadScreen = (
+            <View style={{ marginTop: 50 }}><ActivityIndicator /></View>
+        )
+
+        return this.state.isLoading ? loadScreen : (
             <ScrollView>
                 <Text style={styles.title}>Checkout</Text>
                 <Form
