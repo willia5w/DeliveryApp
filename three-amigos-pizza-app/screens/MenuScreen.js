@@ -30,6 +30,7 @@ export class MenuScreen extends React.Component {
 			customSizeId: null,
 			customSizeIdNotSelected: false,
 			customToppingIds: [],
+			noToppings: false,
 			isLoading: true,
 			menuPizzaId: "",
 			menuPizzaSizeId: "",
@@ -48,7 +49,6 @@ export class MenuScreen extends React.Component {
 	}
 
 	addCustomPizza = () => {
-		console.log("adding custom pizza");
 		this.setState({isLoading: true});
 		const { orderId, customCrustType, customPizzaName, customToppingIds, customSizeId } = this.state;
 		let toppingIdString = "";
@@ -111,7 +111,6 @@ export class MenuScreen extends React.Component {
 					orderId: responseJson._id,
 					currentStoreId: storeId
 				}, function() {
-					
 				})
 			})
 			.catch((error) => {
@@ -163,8 +162,8 @@ export class MenuScreen extends React.Component {
 	}
 
 	addCustom = () => {
-		if (!this.state.customCrustType && !this.state.customSizeId) {
-			this.setState({customCrustTypeNotSelected: true, customSizeIdNotSelected: true});
+		if (this.state.customToppingIds.length < 1) {
+			this.setState({noToppings: true});
 		} else if (!this.state.customCrustType) {
 			this.setState({customCrustTypeNotSelected: true});
 		} else if (!this.state.customSizeId) {
@@ -183,7 +182,6 @@ export class MenuScreen extends React.Component {
 			customPizzaName: ""
 		})
 	}
-
 
 	onClickCheckBox = (isChecked, toppingId) => {
 		const { customToppingIds } = this.state;
@@ -271,6 +269,10 @@ export class MenuScreen extends React.Component {
 			<ErrorMessage message={"Please select a size."} />
 		)
 
+		const noToppingsError = (
+			<ErrorMessage message={"Please select at least one topping."} />
+		)
+
       	return !isLoading ? (
 			<KeyboardAvoidingView 
 				style={styles.container} 
@@ -305,7 +307,10 @@ export class MenuScreen extends React.Component {
 						</View>
 					</View>
 					<Text style={styles.subHeader}>Build Your Own Pizza</Text>
-					{this.state.customCrustTypeNotSelected ? noCrustError : this.state.customSizeIdNotSelected ? noSizeError : null}
+					{this.state.customCrustTypeNotSelected ? noCrustError 
+						: this.state.customSizeIdNotSelected ? noSizeError 
+						: this.state.noToppings ? noToppingsError : null
+					}
 					<View style={styles.customPizzaContainer}>
 						<View style={styles.checkBoxContainer}>
 							{checkBoxes}
