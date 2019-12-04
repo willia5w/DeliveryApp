@@ -13,7 +13,8 @@ import { ReceiptItem } from '../components/ReceiptItem';
 export class ReceiptScreen extends React.Component {
     state = {
         receiptDetails: this.props.navigation.getParam('receipt'),
-        orderDetails: this.props.navigation.getParam('order')
+        orderDetails: this.props.navigation.getParam('order'),
+        totalAfterSpecial: this.props.navigation.getParam('totalAfterSpecial')
     }
 
     componentDidMount = async () => {
@@ -25,7 +26,7 @@ export class ReceiptScreen extends React.Component {
     }
 
     render() {
-        const { receiptDetails, orderDetails } = this.state;
+        const { receiptDetails, orderDetails, totalAfterSpecial } = this.state;
 
         const renderItems = Object.values(orderDetails.orderItems.pizzas).map((item, i) => {
             return (
@@ -33,10 +34,21 @@ export class ReceiptScreen extends React.Component {
                     key={item._id}
                     id={item._id}
                     name={'Pizza: ' + item.size.name + ' ' + item.name}
-                    price={item.price}
+                    price={item.price.toFixed(2)}
                 />
             )
         });
+
+        const newTotal = (
+            <View style={{ flexDirection: 'row' }}>
+                <View style={styles.name}>
+                    <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 5}}>Total after special applied</Text>
+                </View>
+                <View style={styles.price}>
+                    <Text style={{fontSize: 16, marginTop: 5}}>${totalAfterSpecial ? totalAfterSpecial.toFixed(2) : null}</Text>
+                </View>
+            </View>
+        );
 
         return (
             <View style={styles.container}>
@@ -69,10 +81,10 @@ export class ReceiptScreen extends React.Component {
                             <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 5}}>Total</Text>
                         </View>
                         <View style={styles.price}>
-                            <Text style={{fontSize: 16, marginTop: 5}}>${orderDetails.price}</Text>
+                            <Text style={{fontSize: 16, marginTop: 5}}>${orderDetails.price.toFixed(2)}</Text>
                         </View>
                     </View>
-
+                    {totalAfterSpecial ? newTotal : null}
                     <Button
                         title="Track your order"
                         onPress={this.handleTrackOrder}
@@ -85,7 +97,7 @@ export class ReceiptScreen extends React.Component {
 
 const styles = StyleSheet.create({
     price: {
-        width: 50,
+        width: 60,
         marginHorizontal: 10
     },
     name: {

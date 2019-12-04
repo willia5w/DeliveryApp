@@ -78,7 +78,6 @@ export class MenuScreen extends React.Component {
 	addMenuPizzaToOrder = (pizzaId, sizeId) => {
 		this.setState({isLoading: true});
         fetch(`${global.API_ROOT}/order/${this.state.orderId}/addPizzaById?pizzaId=${pizzaId}&sizeId=${sizeId}`, {
-        // fetch('https://three-amigos-prod.herokuapp.com/order/'+ this.state.orderId +'/addPizzaById?pizzaId=' + pizzaId + '&sizeId=' + sizeId, {
 			method: 'PUT',
 			headers: {
 				Accept: 'application/json',
@@ -179,7 +178,8 @@ export class MenuScreen extends React.Component {
 			customCrustTypeNotSelected: false,
 			customSizeId: null,
 			customSizeIdNotSelected: false,
-			customPizzaName: ""
+			customPizzaName: "",
+			noToppings: false
 		})
 	}
 
@@ -283,6 +283,13 @@ export class MenuScreen extends React.Component {
 					style={styles.scrollView}
 					contentContainerStyle={styles.contentContainer}>
 					<Text style={styles.title}>Menu</Text>
+					<View style={styles.viewOrder}>
+						<Button
+							title="View Order"
+							onPress={this.viewOrder}
+						/>
+					</View>
+					
 					<View style={styles.specials}>
 						<Text style={styles.specialsTitle}>Current Specials: </Text>
 						{renderSpecials}
@@ -316,7 +323,7 @@ export class MenuScreen extends React.Component {
 							{checkBoxes}
 						</View>
 
-						<View style={styles.crust}>
+						<View style={styles.customPizzaDetails}>
 							<TextInput
 								style={{height: 40}}
 								placeholder="Name your pizza here"
@@ -324,6 +331,9 @@ export class MenuScreen extends React.Component {
 								value={this.state.customPizzaName}
 							/>
 							<ModalDropdown
+								dropdownStyle={styles.dropDownStyle}
+								textStyle={styles.dropDownText}
+								style={styles.dropDown}
 								options={allCrusts}
 								renderRow={this.renderRow}
 								renderButtonText={(rowData) => this.renderButtonText(rowData)}
@@ -331,6 +341,9 @@ export class MenuScreen extends React.Component {
 								defaultValue={'Select a Crust'}
 							/>
 							<ModalDropdown
+								dropdownStyle={styles.dropDownStyle}
+								textStyle={styles.dropDownText}
+								style={styles.dropDown}
 								options={allSizes}
 								renderRow={this.renderRow}
 								renderButtonText={(rowData) => this.renderButtonText(rowData)}
@@ -341,16 +354,12 @@ export class MenuScreen extends React.Component {
 								title="Add Custom Pizza"
 								onPress={this.addCustom}
 							/>
-							<Button
-								title="View Order"
-								onPress={this.viewOrder}
-							/>
 						</View>
 					</View>
 				</ScrollView>
 			</KeyboardAvoidingView>
       	) : <View style={styles.activityIndicator}><ActivityIndicator/></View>;
-    }
+	}
 }
 
 const styles = StyleSheet.create({
@@ -370,6 +379,18 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		textAlign: 'center',
+	},
+	customPizzaDetails: {
+		alignItems: 'center'
+	},
+	dropDown: {
+		margin: 5
+	},
+	dropDownStyle: {
+		height: 50
+	},
+	dropDownText: {
+		fontSize: 16
 	},
 	menuHeader: {
 		flexDirection: 'row',
@@ -400,6 +421,7 @@ const styles = StyleSheet.create({
 	},
 	subHeader: {
 		fontSize: 32,
+		marginVertical: 15,
 		textAlign: 'center'
 	},
 	thinHeaderColumn: {
@@ -407,7 +429,10 @@ const styles = StyleSheet.create({
 		justifyContent: 'center'
 	},
 	title: {
-        fontSize: 50,
+        fontSize: 40,
         textAlign: 'center'
+	},
+	viewOrder: {
+		alignItems: 'flex-end'
 	}
 });
