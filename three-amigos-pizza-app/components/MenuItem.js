@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import ModalDropdown from 'react-native-modal-dropdown';
+import { ErrorMessage } from './ErrorMessage';
 
 export class MenuItem extends React.Component {
     constructor(props) { 
@@ -45,7 +46,7 @@ export class MenuItem extends React.Component {
 
     render() {
 		const errorMessage = (
-			<Text style={styles.error}>Please select a size for your pizza.</Text>
+			<ErrorMessage message={"Please select a size for your pizza."}/>
 		)
 
 		const { name, price, sizes, toppings } = this.props;

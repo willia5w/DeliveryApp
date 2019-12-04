@@ -14,6 +14,7 @@ import {
 import ModalDropdown from 'react-native-modal-dropdown';
 import { MenuItem } from '../components/MenuItem';
 import { ToppingCheckBox } from '../components/ToppingCheckBox';
+import { ErrorMessage } from '../components/ErrorMessage';
 
 export class MenuScreen extends React.Component {
     constructor(props) { 
@@ -23,10 +24,13 @@ export class MenuScreen extends React.Component {
 			allSizes: [],
 			allToppings: [],
 			currentStore: this.props.navigation.getParam('store'),
-			customCrustType: "",
+			customCrustType: null,
+			customCrustTypeNotSelected: false,
 			customPizzaName: "",
-			customSizeId: "",
+			customSizeId: null,
+			customSizeIdNotSelected: false,
 			customToppingIds: [],
+			noToppings: false,
 			isLoading: true,
 			menuPizzaId: "",
 			menuPizzaSizeId: "",
@@ -41,7 +45,7 @@ export class MenuScreen extends React.Component {
 		await this.getAllCrusts();
 		await this.getAllSizes();
 		await this.getAllToppings();
-		this.setState({isLoading: false});
+		this.setState({isLoading: false});	
 	}
 
 	addCustomPizza = () => {
@@ -63,6 +67,7 @@ export class MenuScreen extends React.Component {
 				order: responseJson,
 				isLoading: false
 			}, function() {
+				this.reset();
 			})
 		})
 		.catch((error) => {
@@ -106,7 +111,6 @@ export class MenuScreen extends React.Component {
 					orderId: responseJson._id,
 					currentStoreId: storeId
 				}, function() {
-					
 				})
 			})
 			.catch((error) => {
@@ -157,6 +161,28 @@ export class MenuScreen extends React.Component {
 		});
 	}
 
+	addCustom = () => {
+		if (this.state.customToppingIds.length < 1) {
+			this.setState({noToppings: true});
+		} else if (!this.state.customCrustType) {
+			this.setState({customCrustTypeNotSelected: true});
+		} else if (!this.state.customSizeId) {
+			this.setState({customSizeIdNotSelected: true});
+		} else {
+			this.addCustomPizza();
+		}
+	}
+
+	reset = () => {
+		this.setState({
+			customCrustType: null,
+			customCrustTypeNotSelected: false,
+			customSizeId: null,
+			customSizeIdNotSelected: false,
+			customPizzaName: ""
+		})
+	}
+
 	onClickCheckBox = (isChecked, toppingId) => {
 		const { customToppingIds } = this.state;
 		if (isChecked) {
@@ -168,10 +194,12 @@ export class MenuScreen extends React.Component {
 
 	onSelectCrust = (index, value) => {
 		this.setState({customCrustType: value._id});
+		this.setState({customCrustTypeNotSelected: false});
 	}
 
 	onSelectSize = (index, value) => {
 		this.setState({customSizeId: value._id});
+		this.setState({customSizeIdNotSelected: false});
 	}
 
 	renderRow = (rowData) => {
@@ -188,7 +216,11 @@ export class MenuScreen extends React.Component {
 	}
 
 	viewOrder = () => {
-		this.props.navigation.navigate('Order', {orderId: this.state.orderId, storeId: this.state.currentStoreId});
+		const { orderId, currentStore } = this.state;
+		this.props.navigation.navigate('Order', {
+			orderId: orderId,
+			specials: currentStore.menu.specials
+		});
 	}
 
     render() {
@@ -229,6 +261,18 @@ export class MenuScreen extends React.Component {
 			)
 		});
 
+		const noCrustError = (
+			<ErrorMessage message={"Please select a crust."} />
+		)
+
+		const noSizeError = (
+			<ErrorMessage message={"Please select a size."} />
+		)
+
+		const noToppingsError = (
+			<ErrorMessage message={"Please select at least one topping."} />
+		)
+
       	return !isLoading ? (
 			<KeyboardAvoidingView 
 				style={styles.container} 
@@ -263,6 +307,10 @@ export class MenuScreen extends React.Component {
 						</View>
 					</View>
 					<Text style={styles.subHeader}>Build Your Own Pizza</Text>
+					{this.state.customCrustTypeNotSelected ? noCrustError 
+						: this.state.customSizeIdNotSelected ? noSizeError 
+						: this.state.noToppings ? noToppingsError : null
+					}
 					<View style={styles.customPizzaContainer}>
 						<View style={styles.checkBoxContainer}>
 							{checkBoxes}
@@ -273,7 +321,7 @@ export class MenuScreen extends React.Component {
 								style={{height: 40}}
 								placeholder="Name your pizza here"
 								onChangeText={(text) => this.setState({customPizzaName: text})}
-								value={this.state.text}
+								value={this.state.customPizzaName}
 							/>
 							<ModalDropdown
 								options={allCrusts}
@@ -291,7 +339,7 @@ export class MenuScreen extends React.Component {
 							/>
 							<Button
 								title="Add Custom Pizza"
-								onPress={this.addCustomPizza}
+								onPress={this.addCustom}
 							/>
 							<Button
 								title="View Order"
@@ -344,7 +392,8 @@ const styles = StyleSheet.create({
 	},
 	specials: {
 		flexDirection: 'row',
-		flexWrap: 'wrap'
+		flexWrap: 'wrap',
+		marginVertical: 10
 	},
 	specialsTitle: {
 		fontWeight: 'bold'
