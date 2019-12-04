@@ -74,7 +74,7 @@ export class OrderScreen extends React.Component {
     }
 
     proceedToCheckout = () => {
-        this.props.navigation.navigate('Checkout', {storeId: this.state.orderId.storeId, orderId: this.state.orderId});
+        this.props.navigation.navigate('Checkout', {storeId: this.state.order.storeId, orderId: this.state.orderId});
     }
  
     render() {
