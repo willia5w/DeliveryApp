@@ -1,7 +1,7 @@
 import React from 'react';
 import {
+    ActivityIndicator,
     Button,
-    Image,
     StyleSheet,
     ScrollView,
     Text,
@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import { Form, TextValidator } from 'react-native-validator-form';
 
-
 export class CheckoutScreen extends React.Component {
     state = {
+        isLoading: true,
         // props
         orderId: this.props.navigation.getParam('orderId'),
         storeId: this.props.navigation.getParam('storeId'),
@@ -27,7 +27,13 @@ export class CheckoutScreen extends React.Component {
         expirationYear: '',
         // id of customer in db
         customerId: '',
-        cardExpired: false
+        cardExpired: false,
+        // order details
+        orderDetails: {}
+    }
+
+    componentDidMount = () => {
+        this.setState({ isLoading: false});
     }
 
     // Submit only gets called if all validations are passed
@@ -37,6 +43,7 @@ export class CheckoutScreen extends React.Component {
 
     submit = () => {
         if (this.validatePayment()) {
+            this.setState({ isLoading: true});
             this.postCustomer();
         } else {
             this.setState({ cardExpired: true })
@@ -94,12 +101,32 @@ export class CheckoutScreen extends React.Component {
                 'Content-Type': 'application/json'
             }
         })
-            .then((response) => {
-                return response.json()
-            })
+            .then((response) => response.json())
             .then(responseJson => {
                 this.setState({
+                    orderDetails: responseJson
+                }, function () {
+                    this.checkout()
+                    //this.processOrder(responseJson);
+                });
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
 
+    // 3. checkout 
+    checkout = () => {
+        fetch(`${global.API_ROOT}/store/${this.state.storeId}/checkout?OrderId=${this.state.orderId}`, {
+            method: 'PUT',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then((response) => response.json())
+            .then(responseJson => {
+                this.setState({
                 }, function () {
                     this.processOrder(responseJson);
                 });
@@ -109,14 +136,14 @@ export class CheckoutScreen extends React.Component {
             });
     }
 
-    // 3. pass the order details to receipt page
-    processOrder = (orderDetails) => {
-        this.props.navigation.navigate('Receipt', {
-            order: orderDetails,
-            storeId: orderDetails.storeId,
-            orderId: orderDetails._id
-        });
-    }
+        // 4. pass the order details to receipt page
+        processOrder = (receiptDetails) => {
+            this.props.navigation.navigate('Receipt', {
+                receipt: receiptDetails,
+                order: this.state.orderDetails
+            });
+            this.setState({ isLoading: false });
+        }
 
     render() {
         const {
@@ -125,7 +152,11 @@ export class CheckoutScreen extends React.Component {
             cardExpired
         } = this.state;
 
-        return (
+        const loadScreen = (
+            <View style={{ marginTop: 50 }}><ActivityIndicator /></View>
+        )
+
+        return this.state.isLoading ? loadScreen : (
             <ScrollView>
                 <Text style={styles.title}>Checkout</Text>
                 <Form
@@ -177,7 +208,7 @@ export class CheckoutScreen extends React.Component {
                     <View style={{ flexDirection: 'row' }} >
                         <TextValidator
                             name="expirationMonth"
-                            style={styles.inLineInput}
+                            style={styles.inLineTextInput}
                             maxLength={2}
                             validators={['required', 'isNumber', 'minNumber:1', 'maxNumber:12']}
                             errorMessages={['*required', 'Month invalid', 'Month invalid', 'Month invalid']}
@@ -187,7 +218,7 @@ export class CheckoutScreen extends React.Component {
                         />
                         <TextValidator
                             name="expirationYear"
-                            style={styles.inLineInput}
+                            style={styles.inLineTextInput}
                             maxLength={4}
                             validators={['required', 'isNumber', 'minNumber:2019']}
                             errorMessages={['*required', 'Year invalid', 'Year invalid']}
@@ -197,7 +228,7 @@ export class CheckoutScreen extends React.Component {
                         />
                         <TextValidator
                             name="cvv"
-                            style={styles.inLineInput}
+                            style={styles.inLineTextInput}
                             maxLength={3}
                             validators={['required', 'matchRegexp:^[0-9]{3}$']}
                             errorMessages={['*required', 'CVV number invalid']}
@@ -249,11 +280,11 @@ const styles = StyleSheet.create({
         paddingLeft: 15,
         paddingRight: 15,
     },
-    inLineInput: {
+    inLineTextInput: {
         borderColor: '#CCCCCC',
         borderBottomWidth: 2,
         height: 50,
-        width: "100%",
+        width: 150,
         fontSize: 15,
         paddingLeft: 15,
         paddingRight: 15,

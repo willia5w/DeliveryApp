@@ -1,94 +1,128 @@
 import React from 'react';
 import {
-	ActivityIndicator,
-	Button,
-	Dimensions,
-	KeyboardAvoidingView,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextInput,
-	View
+    Button,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View
 } from 'react-native';
+import { ReceiptItem } from '../components/ReceiptItem';
 
 
 export class ReceiptScreen extends React.Component {
-    constructor(props) { 
-      	super(props);
-      	this.state = {
-			receiptBody: this.props.navigation.getParam('order'),
-			storeId: this.props.navigation.getParam('storeId'),
-			orderId: this.props.navigation.getParam('orderId'),
-			isLoading: true,
-			store: null
-      	};
-	}
-	
-	componentDidMount = async () => {
-		this.completeOrder();
-		this.setState({isLoading: false});
-	}
+    state = {
+        receiptDetails: this.props.navigation.getParam('receipt'),
+        orderDetails: this.props.navigation.getParam('order')
+    }
 
-	completeOrder = () => {
-		this.setState({isLoading: true});
-		fetch(`https://three-amigos-prod.herokuapp.com/store/${this.state.storeId}/complete?OrderId=${this.state.orderId}`, {
-			method: 'PUT',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			}
-		}).then((response) => response.json())
-		.then((responseJson) => {
-			this.setState({
-				store: responseJson,
-				isLoading: false
-			}, function() {
-				// Add delay in API to allow order to be added to store's order lists?
-				//console.log(JSON.stringify(this.state.store))
-			})
-		})
-		.catch((error) => {
-			console.error(error);
-		});
-	}
+    componentDidMount = async () => {
+        this.setState({ isLoading: false });
+    }
+
+    handleTrackOrder = () => {
+        return;
+    }
 
     render() {
-        const {receiptBody} = this.state;
+        const { receiptDetails, orderDetails } = this.state;
+
+        const renderItems = Object.values(orderDetails.orderItems.pizzas).map((item, i) => {
+            return (
+                <ReceiptItem
+                    key={item._id}
+                    id={item._id}
+                    name={'Pizza: ' + item.size.name + ' ' + item.name}
+                    price={item.price}
+                />
+            )
+        });
+
         return (
-			<ScrollView>
-				<Text style={styles.title}>Receipt</Text>
-				<Text>{JSON.stringify(receiptBody)}</Text>
-			</ScrollView>
+            <View style={styles.container}>
+                <ScrollView>
+                    <View style={{ textAlign: 'center', flexDirection: 'row' }}>
+                        <Image style={styles.image} source={require('../assets/images/pizza-icon.png')} />
+                        <Text style={styles.title}>Receipt</Text>
+                        <Image style={styles.image} source={require('../assets/images/pizza-icon.png')} />
+                    </View>
+
+                    <Text style={styles.rowContent}>
+                        Thank you, {receiptDetails.customerName}. Your order is on it's way.{"\n"}
+                    </Text>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={styles.rowTitle}>Date: </Text>
+                        <Text style={styles.rowContent}>{receiptDetails.timeOfPurchase}</Text>
+                    </View>
+
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={styles.rowTitle}>Store: </Text>
+                        <Text style={styles.rowContent}>{receiptDetails.storeName}</Text>
+                    </View>
+
+                    <Text style={styles.header}>Order Items: </Text>
+                    <View>
+                        {renderItems}
+                    </View>
+                    <View style={{ flexDirection: 'row' }}>
+                        <View style={styles.name}>
+                            <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 5}}>Total</Text>
+                        </View>
+                        <View style={styles.price}>
+                            <Text style={{fontSize: 16, marginTop: 5}}>${orderDetails.price}</Text>
+                        </View>
+                    </View>
+
+                    <Button
+                        title="Track your order"
+                        onPress={this.handleTrackOrder}
+                    />
+                </ScrollView>
+            </View>
         )
     }
 }
 
 const styles = StyleSheet.create({
+    price: {
+        width: 50,
+        marginHorizontal: 10
+    },
+    name: {
+        width: 200,
+        marginHorizontal: 10
+    },
     container: {
         flex: 1,
-        paddingTop: 45,
-        backgroundColor: '#F5FCFF',
+        marginTop: 10,
+        marginHorizontal: 10,
+    },
+    rowContent: {
+        fontSize: 16,
+        marginLeft: 10,
+        marginRight: 10,
+        marginTop: 5
+    },
+    rowTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 10,
+        marginRight: 10,
+        marginTop: 5
     },
     header: {
-        fontSize: 25,
-        textAlign: 'center',
+        fontSize: 22,
         margin: 10,
         fontWeight: 'bold'
     },
-    inputContainer: {
-        paddingTop: 15
-    },
-    textInput: {
-        borderColor: '#CCCCCC',
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
+    image: {
         height: 50,
-        fontSize: 25,
-        paddingLeft: 20,
-        paddingRight: 20
+        width: 50,
+        marginLeft: 40,
+        marginRight: 40
     },
     title: {
-        fontSize: 50,
+        fontSize: 30,
         textAlign: 'center'
-	}
+    }
 });
