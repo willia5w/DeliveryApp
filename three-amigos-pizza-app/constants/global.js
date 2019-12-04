@@ -1,1 +1,1 @@
-global.API_ROOT = 'https://quiet-tor-41409.herokuapp.com'; //'https://three-amigos-prod.herokuapp.com';
+global.API_ROOT = 'https://three-amigos-prod.herokuapp.com';
